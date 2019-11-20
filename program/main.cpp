@@ -5,6 +5,9 @@
 #include <map>
 #include <vector>
 
+#include "strategy.h"
+#include "holding.h"
+#include "contract.h"
 #include "pledge.h"
 
 using std::cin;

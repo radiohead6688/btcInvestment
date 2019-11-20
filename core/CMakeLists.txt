@@ -1,10 +1,8 @@
-SET(program_source main.cpp)
+SET(core_source pledge.cpp)
 
 #SET(third_party_libs
         #${CMAKE_SOURCE_DIR}/thirdParty/boost_1_70_0/stage/lib/libboost_program_options.a
         #${CMAKE_SOURCE_DIR}/thirdParty/boost_1_70_0/stage/lib/libboost_thread.a
         #${CMAKE_SOURCE_DIR}/thirdParty/json/libjsoncpp.a)
 
-ADD_EXECUTABLE(main ${program_source})
-
-TARGET_LINK_LIBRARIES(main core)
+ADD_LIBRARY(core ${core_source})
