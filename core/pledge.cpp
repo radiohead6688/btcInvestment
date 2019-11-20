@@ -41,6 +41,10 @@ BabelPledge::BabelPledge(double icl, double mrfil, double mrful, double ll, doub
 
 double BabelPledge::getValue(double price, double quantity) const
 {
-    return 0;
+    double ret = 0.0;
+
+
+
+    return ret;
 }
 

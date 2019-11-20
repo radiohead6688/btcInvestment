@@ -41,7 +41,7 @@ Strategy::Strategy(double elecProp, double entryPrice, Contract* c, double qc) :
 double Strategy::getValue(double price) const
 {
     double ret = 0.0;
-    //return m_holding->getValue() + m_contract->getValue() + m_pledge->getValue();
+
     if (m_holding){
         ret += m_holding->getValue(price, m_quantityHolding);
     }
