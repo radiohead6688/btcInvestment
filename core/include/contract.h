@@ -1,12 +1,12 @@
 #pragma once
 
-#include "investment.h"
+#include "method.h"
 
-class Contract: public Investment {
+class Contract: public Method {
 public:
     Contract();
 
-    InvestmentType getInvestmentType() const override {return Investment::ContractType;}
+    MethodType getMethodType() const override {return Method::ContractType;}
     //double getValue(double price, double quantity) const override;
 
 private:
@@ -18,5 +18,4 @@ private:
     const double m_entryPrice;
     double m_liqPrice;
     double m_size;
-
 };

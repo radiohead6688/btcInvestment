@@ -2,9 +2,9 @@
 
 #include <stdint.h>
 
-class Investment {
+class Method {
 public:
-    enum InvestmentType: uint16_t {
+    enum MethodType: uint16_t {
         HoldingType                 = 0x01,
         PledgeType                  = 0x02,
         ContractType                = 0x03,
@@ -13,8 +13,8 @@ public:
         UnknownType = 0xFFFF,
     };
 
-    virtual ~Investment() {}
+    virtual ~Method() {}
 
-    virtual InvestmentType getInvestmentType() const = 0;
+    virtual MethodType getMethodType() const = 0;
     virtual double getValue(double price, double quantity) const = 0;
 };

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "investment.h"
+#include "method.h"
 
-class Pledge: public Investment {
+class Pledge: public Method {
 protected:
     Pledge(double icl, double mrfil, double ll, double ai, unsigned short td);
 
@@ -17,19 +17,26 @@ protected:
     double m_refillPriceRatio1, m_refillPriceRatio2;
     double m_liqPriceRatio1, m_liqPriceRatio2;
     double m_refillCollaRatio1, m_refillCollaRatio2;
-
 };
 
-class Babel: public Pledge {
+class BabelPledge: public Pledge {
 public:
-    Babel(double icl, double mrfil, double mrful, double ll, double ai, unsigned short td);
+    BabelPledge(double icl, double mrfil, double mrful, double ll, double ai, unsigned short td);
 
-    InvestmentType getInvestmentType() const override {return Investment::PledgeType;}
+    MethodType getMethodType() const override {return Method::PledgeType;}
     double getValue(double price, double quantity) const override;
 
-public:
+private:
     const double m_refundLevel;
 
     double m_refundPriceRatio1, m_refundPriceRatio2;
+};
 
+class GateioPledge: public Pledge {
+public:
+    GateioPledge(double icl, double mrfil, double ll, double ai, unsigned short td) :
+        Pledge(icl, mrfil, ll, ai, td) {}
+
+    MethodType getMethodType() const override {return Method::PledgeType;}
+    double getValue(double price, double quantity) const override;
 };

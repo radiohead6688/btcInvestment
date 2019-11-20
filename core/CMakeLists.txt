@@ -1,4 +1,4 @@
-SET(core_source pledge.cpp)
+SET(core_source strategy.cpp holding.cpp contract.cpp pledge.cpp)
 
 #SET(third_party_libs
         #${CMAKE_SOURCE_DIR}/thirdParty/boost_1_70_0/stage/lib/libboost_program_options.a

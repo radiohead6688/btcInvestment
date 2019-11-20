@@ -21,7 +21,7 @@ Pledge::Pledge(double icl, double mrfil, double ll, double ai, unsigned short td
     m_liqPriceRatio2 = m_initCollaLevel / (m_liqLevel * (m_refillCollaRatio2 + 1));
 }
 
-Babel::Babel(double icl, double mrfil, double mrful, double ll, double ai, unsigned short td) :
+BabelPledge::BabelPledge(double icl, double mrfil, double mrful, double ll, double ai, unsigned short td) :
         Pledge(icl, mrfil, ll, ai, td),  m_refundLevel(mrful)
 {
     m_refundPriceRatio1 = m_initCollaLevel / ((m_refillCollaRatio1 + 1) * m_refundLevel);
@@ -39,9 +39,8 @@ Babel::Babel(double icl, double mrfil, double mrful, double ll, double ai, unsig
          << "second refund price: " << m_refundPriceRatio2 << endl;
 }
 
-double Babel::getValue(double price, double quantity) const
+double BabelPledge::getValue(double price, double quantity) const
 {
     return 0;
 }
-
 

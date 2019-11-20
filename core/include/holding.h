@@ -1,12 +1,12 @@
 #pragma once
 
-#include "investment.h"
+#include "method.h"
 
-class Holding : public Investment {
+class Holding : public Method {
 public:
-    Holding();
+    Holding() {}
 
-    InvestmentType getInvestmentType() const override {return Investment::HoldingType;}
-    double getValue(double price, double quantity) const override;
+    MethodType getMethodType() const override {return Method::HoldingType;}
+    double getValue(double price, double quantity) const override {return price * quantity;}
 };
 
