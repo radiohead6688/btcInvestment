@@ -39,13 +39,15 @@ public:
 
     double getValue(double price) const override;
 
-    double getLiqPrice() const;
+    double getLiqPrice(double entryPrice) const;
     double refill();
+    double refund();
 
 private:
     const double m_refundLevel = 0.4;
 
     double m_refundPriceRatio1, m_refundPriceRatio2;
+    unsigned short m_refunded = 0;
 };
 
 class GateioPledge: public Pledge {

@@ -1,5 +1,6 @@
 #include "pledge.h"
 #include <iostream>
+#include "exception.h"
 
 using std::cout;
 using std::endl;
@@ -47,36 +48,81 @@ double BabelPledge::getValue(double price) const
     return ret;
 }
 
-double BabelPledge::getLiqPrice() const {
+double BabelPledge::getLiqPrice(double entryPrice) const {
     double liqPrice;
-    switch (m_refilled) {
-        case 0:
-            liqPrice = m_entryPrice * m_liqPriceRatio;
-            break;
-        case 1:
-            liqPrice = m_entryPrice * m_liqPriceRatio1;
-            break;
-        case 2:
-            liqPrice = m_entryPrice * m_liqPriceRatio2;
-            break;
+    try {
+        switch (m_refilled - m_refunded) {
+            case 0:
+                liqPrice = entryPrice * m_liqPriceRatio;
+                break;
+            case 1:
+                liqPrice = entryPrice * m_liqPriceRatio1;
+                break;
+            case 2:
+                liqPrice = entryPrice * m_liqPriceRatio2;
+                break;
+            default:
+                cout << "Refilled too many times. Check strategy." << endl;
+                throw;
+                break;
+        }
+    } catch (const std::exception& e) {
+        exit(-1);
     }
+
     return liqPrice;
 }
 
 double BabelPledge::refill() {
     double refillCollaRatio;;
-    switch (m_refilled) {
-        case 0:
-            refillCollaRatio = m_refillCollaRatio1;
-            break;
-        case 1:
-            refillCollaRatio = m_refillCollaRatio2 - m_refillCollaRatio1;
-            break;
+    try {
+        switch (m_refilled - m_refunded) {
+            case 0:
+                refillCollaRatio = m_refillCollaRatio1;
+                break;
+            case 1:
+                refillCollaRatio = m_refillCollaRatio2 - m_refillCollaRatio1;
+                break;
+            default:
+                cout << "Refilled twice already. Rekt!" << endl;
+                throw;
+                break;
+        }
+    } catch(const std::exception& e) {
+        exit(-1);
     }
 
     m_refilled += 1;
 
     return refillCollaRatio;
+}
+
+double BabelPledge::refund() {
+    double refundCollaRatio;;
+    try {
+        switch (m_refilled - m_refunded) {
+            case 0:
+                cout << "Nothing to refund. Check strategy." << endl;
+                throw;
+                break;
+            case 1:
+                refundCollaRatio = m_refillCollaRatio1;
+                break;
+            case 2:
+                refundCollaRatio = m_refillCollaRatio2 - m_refillCollaRatio1;
+                break;
+            default:
+                cout << "Refilled more than twice. Check strategy." << endl;
+                throw;
+                break;
+        }
+    } catch (const std::exception& e) {
+        exit(-1);
+    }
+
+    m_refunded += 1;
+
+    return refundCollaRatio;
 }
 
 GateioPledge::GateioPledge(unsigned short td) : Pledge(0.7, 0.8, 0.9, 0.1388, td)
