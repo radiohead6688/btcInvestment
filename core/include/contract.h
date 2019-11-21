@@ -1,21 +1,24 @@
 #pragma once
 
-#include "method.h"
+#include <stdint.h>
 
-class Contract: public Method {
+enum class ContractSide: uint16_t {
+    BuyLongType                 = 0x01,
+    SellShortType               = 0x02,
+
+    UnknownType                 = 0xFFFF
+};
+
+class Contract {
 public:
-    Contract();
+    Contract(double entryPrice, double btcQuantity, double leverage, ContractSide side);
 
-    MethodType getMethodType() const override {return Method::ContractType;}
-    //double getValue(double price, double quantity) const override;
+    double getValue(double price) const;
 
 private:
-    enum Side : uint16_t {
-        BuyLong                     = 0x01,
-        SellShort                   = 0x02,
-        UnknownType                 = 0xFFFF
-    };
     const double m_entryPrice;
+    const double m_leverage;
+    const ContractSide m_side;
+
     double m_liqPrice;
-    double m_size;
 };

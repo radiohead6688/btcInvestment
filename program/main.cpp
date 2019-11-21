@@ -60,10 +60,10 @@ void calculateStrategy() {
     //cout << elecProp << " " << productivity << " " << initCollaLevel
          //<< " " << remainCollaRatio << endl;
 
-    double const elecProp = 0.73;
-    double const productivity = 100;
-    double const initCollaLevel = 0.7;
-    double const remainCollaRatio = 0.1429;
+    double const elecProp = 0.7;
+    double const productivity = 130;
+    double const initCollaLevel = 0.6;
+    double const remainCollaRatio = 0.25;
     double colla, sell, remain;
     /*
      * colla + sell + remain = productivity;
@@ -76,19 +76,16 @@ void calculateStrategy() {
     sell = productivity - colla - remain;
 
     cout << "Collateral: " << colla << "\nSell: " << sell << "\nRemaining: " << remain << endl;
-
-    std::map<double,double> babel_conser_30;
 }
 
 int main()
 {
+    //calculateStrategy();
     //Strategy s(0.7, 100, 10000, 0, 1, 0);
-    Holding* h = new Holding();
-    BabelPledge* b = new BabelPledge(0.6, 0.8, 0.4, 0.9, 0.0888, 30);
+    //BabelPledge* b = new BabelPledge(0.6, 0.8, 0.4, 0.9, 0.0888, 30);
 
-    //Strategy s(0.7, 10000, h, 1);
-    Strategy s(0.7, 10000, b, 1);
-    cout << s.getValue(30000) << endl;
+    //Strategy s(0.7, 10000, b, 1);
+    //cout << s.getValue(30000) << endl;
 
 
     return 0;

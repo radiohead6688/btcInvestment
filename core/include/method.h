@@ -4,7 +4,7 @@
 
 class Method {
 public:
-    enum MethodType: uint16_t {
+    enum class MethodType: uint16_t {
         HoldingType                 = 0x01,
         PledgeType                  = 0x02,
         ContractType                = 0x03,

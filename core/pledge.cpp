@@ -21,8 +21,8 @@ Pledge::Pledge(double icl, double mrfil, double ll, double ai, unsigned short td
     m_liqPriceRatio2 = m_initCollaLevel / (m_liqLevel * (m_refillCollaRatio2 + 1));
 }
 
-BabelPledge::BabelPledge(double icl, double mrfil, double mrful, double ll, double ai, unsigned short td) :
-        Pledge(icl, mrfil, ll, ai, td),  m_refundLevel(mrful)
+BabelPledge::BabelPledge(unsigned short td) :
+        Pledge(0.6, 0.8, 0.9, 0.0888, td)
 {
     m_refundPriceRatio1 = m_initCollaLevel / ((m_refillCollaRatio1 + 1) * m_refundLevel);
     m_refundPriceRatio2 = m_initCollaLevel / ((m_refillCollaRatio2 + 1) * m_refundLevel);
@@ -39,12 +39,46 @@ BabelPledge::BabelPledge(double icl, double mrfil, double mrful, double ll, doub
          << "second refund price: " << m_refundPriceRatio2 << endl;
 }
 
-double BabelPledge::getValue(double price, double quantity) const
+double BabelPledge::getValue(double price) const
 {
     double ret = 0.0;
-
 
 
     return ret;
 }
 
+double BabelPledge::getLiqPrice() const {
+    double liqPrice;
+    switch (m_refilled) {
+        case 0:
+            liqPrice = m_entryPrice * m_liqPriceRatio;
+            break;
+        case 1:
+            liqPrice = m_entryPrice * m_liqPriceRatio1;
+            break;
+        case 2:
+            liqPrice = m_entryPrice * m_liqPriceRatio2;
+            break;
+    }
+    return liqPrice;
+}
+
+double BabelPledge::refill() {
+    double refillCollaRatio;;
+    switch (m_refilled) {
+        case 0:
+            refillCollaRatio = m_refillCollaRatio1;
+            break;
+        case 1:
+            refillCollaRatio = m_refillCollaRatio2 - m_refillCollaRatio1;
+            break;
+    }
+
+    m_refilled += 1;
+
+    return refillCollaRatio;
+}
+
+GateioPledge::GateioPledge(unsigned short td) : Pledge(0.7, 0.8, 0.9, 0.1388, td)
+{
+}

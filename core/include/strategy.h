@@ -6,8 +6,7 @@
 
 class Strategy {
 public:
-    Strategy(double elecProp, double entryPrice, Holding* h, Pledge* p, Contract* c,
-        double qh, double qp, double qc);
+    Strategy(double elecProp, double entryPrice, double quantity, double hProp, double pProp,double cProp, PledgeType pType, unsigned short days);
 
     Strategy(double elecProp, double entryPrice, Holding* h, double qh);
     Strategy(double elecProp, double entryPrice, Pledge* p, double qp);
@@ -18,14 +17,14 @@ public:
     double getValue(double price) const;
 private:
     double m_elecProp;
-    double m_quantity;
+    double m_initQuantity;
     double m_entryPrice;
 
     Holding* m_holding;
     Contract* m_contract;
     Pledge* m_pledge;
 
-    double m_quantityHolding;
-    double m_quantityContract;
-    double m_quantityPledge;
+    double m_initQuantityHolding;
+    double m_initQuantityContract;
+    double m_initQuantityPledge;
 };

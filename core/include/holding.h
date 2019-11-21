@@ -1,12 +1,16 @@
 #pragma once
 
-#include "method.h"
+class Holding {
+private:
+    double m_balance = 0.0;
+    double m_fee = 0.001;
 
-class Holding : public Method {
 public:
-    Holding() {}
+    Holding() : m_balance(0.0) {}
+    explicit Holding(double balance) : m_balance(balance) {}
 
-    MethodType getMethodType() const override {return Method::HoldingType;}
-    double getValue(double price, double quantity) const override;
+    double getValue(double price) const;
+    double sell(double price, double quantity);
+    double buy(double quantity);
 };
 
