@@ -78,26 +78,31 @@ void calculateStrategy() {
     cout << "Collateral: " << colla << "\nSell: " << sell << "\nRemaining: " << remain << endl;
 }
 
-int main()
-{
+void testStrategy() {
     double elecProp = 0.7;
     double entryPrice = 10000;
-    double quantity = 100;
-    double hProp = 0;
-    double pProp = 1;
-    double cProp = 0;
+    double quantity = 10;
+    double hProp = 0.4;
+    double pProp = 0.4;
+    double cProp = 0.2;
     PledgeType pledgeType = PledgeType::BabelPledgeType;
     double durationInDays = 90;
     double tradeFee = 0.001;
     double leverage = 1;
     ContractSide contractSide = ContractSide::SellShortType;
 
-    //calculateStrategy();
-    Strategy s(elecProp, entryPrice, quantity, hProp, pProp, cProp, pledgeType, durationInDays, tradeFee, leverage, contractSide);
-    //BabelPledge* b = new BabelPledge(0.6, 0.8, 0.4, 0.9, 0.0888, 30);
+    Strategy s(elecProp, entryPrice, quantity, hProp, pProp, cProp, pledgeType, durationInDays,
+        tradeFee, leverage, contractSide);
 
-    //Strategy s(0.7, 10000, b, 1);
-    //cout << s.getValue(30000) << endl;
+    double value = s.getValue(10000);
+    cout << value << endl;
+
+}
+
+int main()
+{
+    //calculateStrategy();
+    testStrategy();
 
 
     return 0;

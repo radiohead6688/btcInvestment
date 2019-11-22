@@ -13,13 +13,12 @@ enum class PledgeType: uint16_t {
 
 class Pledge {
 protected:
-    Pledge(double icl, double mrfil, double ll, double air, unsigned short durationInDays);
+    Pledge(double icl, double mrfil, double ll, double air);
 
     const double m_initCollaLevel;
     const double m_refillLevel;
     const double m_liqLevel;
     const double m_annualizedInterestsRate;
-    const unsigned short m_termInDays;
     double m_dailyInterests;
     double m_liqPriceRatio;
 
@@ -29,7 +28,8 @@ protected:
     double m_refillCollaRatio1, m_refillCollaRatio2;
 
 public:
-    virtual double getValue(double entryPrice, double currPrice, double quantity) const = 0;
+    virtual double getValue(double entryPrice, double price, double quantity,
+            unsigned short duration) const = 0;
     virtual double getLiqPriceRatio() const = 0;
     virtual double refill() = 0;
 };
@@ -45,9 +45,10 @@ class BabelPledge: public Pledge {
  */
 
 public:
-    BabelPledge(unsigned short durationInDays);
+    BabelPledge();
 
-    double getValue(double entryPrice, double currPrice, double quantity) const override;
+    double getValue(double entryPrice, double price, double quantity,
+            unsigned short duration) const override;
     double getLiqPriceRatio() const override;
     double refill() override;
 
@@ -69,9 +70,10 @@ class GateioPledge: public Pledge {
  */
 
 public:
-    GateioPledge(unsigned short durationInDays);
+    GateioPledge();
 
-    double getValue(double entryPrice, double currPrice, double quantity) const override {return 0;}
+    double getValue(double entryPrice, double price, double quantity,
+            unsigned short duration) const override {return 0;}
     double getLiqPriceRatio() const override {return 0;}
     double refill() override {return 0;}
 };

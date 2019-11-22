@@ -5,9 +5,9 @@
 using std::cout;
 using std::endl;
 
-Pledge::Pledge(double icl, double mrfil, double ll, double air, unsigned short durationInDays) :
+Pledge::Pledge(double icl, double mrfil, double ll, double air) :
     m_initCollaLevel(icl), m_refillLevel(mrfil), m_liqLevel(ll),
-    m_annualizedInterestsRate(air), m_termInDays(durationInDays)
+    m_annualizedInterestsRate(air)
 {
     m_dailyInterests = m_annualizedInterestsRate/ 365;
 
@@ -22,33 +22,35 @@ Pledge::Pledge(double icl, double mrfil, double ll, double air, unsigned short d
     m_liqPriceRatio2 = m_initCollaLevel / (m_liqLevel * (m_refillCollaRatio2 + 1));
 }
 
-BabelPledge::BabelPledge(unsigned short durationInDays) :
-        Pledge(0.6, 0.8, 0.9, 0.0888, durationInDays)
+BabelPledge::BabelPledge() :
+        Pledge(0.6, 0.8, 0.9, 0.0888)
 {
     m_refundPriceRatio1 = m_initCollaLevel / ((m_refillCollaRatio1 + 1) * m_refundLevel);
     m_refundPriceRatio2 = m_initCollaLevel / ((m_refillCollaRatio2 + 1) * m_refundLevel);
 
-    cout << "daily interests: " << m_dailyInterests << endl
-         << "refill price: " << m_refillPriceRatio1 << endl
-         << "liquidation price: " << m_liqPriceRatio << endl
-         << "refill ratio: " << m_refillCollaRatio1 << endl
-         << "liquidation price after refill: " << m_liqPriceRatio1 << endl
-         << "refund price: " << m_refundPriceRatio1 << endl
-         << "second refill price: " <<  m_refillPriceRatio2 << endl
-         << "second refill ratio: " << m_refillCollaRatio2 << endl
-         << "liquidation price after second refill: " << m_liqPriceRatio2 << endl
-         << "second refund price: " << m_refundPriceRatio2 << endl;
+    //cout << "Babel Pledge:" << endl
+         //<< "daily interests: " << m_dailyInterests << endl
+         //<< "refill price: " << m_refillPriceRatio1 << endl
+         //<< "liquidation price: " << m_liqPriceRatio << endl
+         //<< "refill ratio: " << m_refillCollaRatio1 << endl
+         //<< "liquidation price after refill: " << m_liqPriceRatio1 << endl
+         //<< "refund price: " << m_refundPriceRatio1 << endl
+         //<< "second refill price: " <<  m_refillPriceRatio2 << endl
+         //<< "second refill ratio: " << m_refillCollaRatio2 << endl
+         //<< "liquidation price after second refill: " << m_liqPriceRatio2 << endl
+         //<< "second refund price: " << m_refundPriceRatio2 << endl;
 }
 
-double BabelPledge::getValue(double entryPrice, double currPrice, double quantity) const
+double BabelPledge::getValue(double entryPrice, double price, double quantity,
+        unsigned short duration) const
 {
     double ret = 0.0;
     double liqPrice = entryPrice * getLiqPriceRatio();
-    if (currPrice <= liqPrice) {
+    if (price <= liqPrice) {
         return 0.0;
     }
 
-    return quantity * (currPrice - m_initCollaLevel * entryPrice);
+    return quantity * (price - m_initCollaLevel * entryPrice * (1 + duration * m_dailyInterests));
 }
 
 double BabelPledge::getLiqPriceRatio() const {
@@ -128,6 +130,6 @@ double BabelPledge::refund() {
     return refundCollaRatio;
 }
 
-GateioPledge::GateioPledge(unsigned short durationInDays) : Pledge(0.7, 0.8, 0.9, 0.1388, durationInDays)
+GateioPledge::GateioPledge() : Pledge(0.7, 0.8, 0.9, 0.1388)
 {
 }

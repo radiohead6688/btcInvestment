@@ -29,5 +29,8 @@ private:
     double m_quantityHolding;
     double m_quantityContract;
     double m_quantityPledge;
+    unsigned short m_pledgeDuration;
+    unsigned short m_pledgePast;
+
     double m_usdtBalance = 0;
 };
