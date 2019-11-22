@@ -21,9 +21,11 @@ struct Config {
 };
 
 Strategy::Strategy(double elecProp, double entryPrice, double quantity, double hProp, double pProp,
-    double cProp, PledgeType pType, unsigned short days) : m_elecProp(elecProp), m_entryPrice(entryPrice), m_initQuantity(quantity)
+    double cProp, PledgeType pType, unsigned short days, double tradeFee, double leverage,
+    ContractSide contractSide) : m_elecProp(elecProp), m_entryPrice(entryPrice),
+    m_initQuantity(quantity)
 {
-    m_holding = new Holding(quantity * hProp);
+    m_holding = new Holding(tradeFee);
 
     switch (pType) {
         case PledgeType::BabelPledgeType:
@@ -38,27 +40,17 @@ Strategy::Strategy(double elecProp, double entryPrice, double quantity, double h
             break;
     }
 
+    m_contract = new Contract(leverage, contractSide);
+
     m_quantityHolding = quantity * hProp;
     m_quantityPledge = quantity * pProp;
     m_quantityContract = quantity * cProp;
 }
 
-double Strategy::getValue(double currPrice) const
+double Strategy::getValue(double price) const
 {
-    double ret = 0.0;
-
-    if (m_holding){
-        ret += m_holding->getValue(currPrice);
-    }
-
-    if (m_pledge){
-        ret += m_pledge->getValue(m_entryPrice, currPrice, m_quantityPledge);
-    }
-
-    if (m_contract){
-        ret += m_contract->getValue(currPrice);
-    }
-
-    return ret;
+    return m_holding->getValue(price, m_quantityHolding)
+         + m_pledge->getValue(m_entryPrice, price, m_quantityPledge)
+         + m_contract->getValue(m_entryPrice, price, m_quantityContract);
 }
 

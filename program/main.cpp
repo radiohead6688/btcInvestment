@@ -88,9 +88,12 @@ int main()
     double cProp = 0;
     PledgeType pledgeType = PledgeType::BabelPledgeType;
     double durationInDays = 90;
+    double tradeFee = 0.001;
+    double leverage = 1;
+    ContractSide contractSide = ContractSide::SellShortType;
 
     //calculateStrategy();
-    Strategy s(elecProp, entryPrice, quantity, hProp, pProp, cProp, pledgeType, durationInDays);
+    Strategy s(elecProp, entryPrice, quantity, hProp, pProp, cProp, pledgeType, durationInDays, tradeFee, leverage, contractSide);
     //BabelPledge* b = new BabelPledge(0.6, 0.8, 0.4, 0.9, 0.0888, 30);
 
     //Strategy s(0.7, 10000, b, 1);

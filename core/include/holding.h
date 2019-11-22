@@ -2,15 +2,13 @@
 
 class Holding {
 private:
-    double m_balance = 0.0;
-    double m_fee = 0.001;
+    double m_fee;
 
 public:
-    Holding() : m_balance(0.0) {}
-    explicit Holding(double balance) : m_balance(balance) {}
+    Holding(double fee) : m_fee(fee) {}
+    explicit Holding() {}
 
-    double getValue(double price) const;
-    double sell(double price, double quantity);
-    double buy(double quantity);
+    double getValue(double price, double quantity) const;
+    double getSellValue(double price, double quantity) const;
+    double getBuyQuantity(double price, double quantity) const;
 };
-

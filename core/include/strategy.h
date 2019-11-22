@@ -6,7 +6,9 @@
 
 class Strategy {
 public:
-    Strategy(double elecProp, double entryPrice, double quantity, double hProp, double pProp,double cProp, PledgeType pType, unsigned short days);
+    Strategy(double elecProp, double entryPrice, double quantity, double hProp, double pProp,
+        double cProp, PledgeType pType, unsigned short days, double tradeFee, double leverage,
+        ContractSide contractSide);
 
     Strategy(double elecProp, double entryPrice, Holding* h, double qh);
     Strategy(double elecProp, double entryPrice, Pledge* p, double qp);
@@ -27,4 +29,5 @@ private:
     double m_quantityHolding;
     double m_quantityContract;
     double m_quantityPledge;
+    double m_usdtBalance = 0;
 };

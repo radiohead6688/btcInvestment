@@ -11,14 +11,14 @@ enum class ContractSide: uint16_t {
 
 class Contract {
 public:
-    Contract(double entryPrice, double btcQuantity, double leverage, ContractSide side);
+    Contract(double leverage, ContractSide side);
 
-    double getValue(double price) const {return 0;}
+    double getValue(double entryPrice, double price, double quantity) const;
+    double getLiqPriceRatio() const {return m_liqPriceRatio;}
 
 private:
-    const double m_entryPrice;
     const double m_leverage;
     const ContractSide m_side;
 
-    double m_liqPrice;
+    double m_liqPriceRatio;
 };

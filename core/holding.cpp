@@ -1,21 +1,17 @@
 #include <assert.h>
 #include "holding.h"
 
-double Holding::getValue(double price) const
+double Holding::getValue(double price, double quantity) const
 {
-    return price * m_balance;
+    return price * quantity;
 }
 
-double Holding::sell(double price, double quantity)
+double Holding::getSellValue(double price, double quantity) const
 {
-    assert(quantity <= m_balance);
-
-    m_balance -= quantity;
     return price * quantity * (1 - m_fee);
 }
 
-double Holding::buy(double quantity)
+double Holding::getBuyQuantity(double price, double usdtQuantity) const
 {
-    m_balance += quantity * (1 - m_fee);
-    return m_balance;
+    return (usdtQuantity / price) * (1 - m_fee);
 }
