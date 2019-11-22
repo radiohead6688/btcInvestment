@@ -13,7 +13,7 @@ enum class PledgeType: uint16_t {
 
 class Pledge {
 protected:
-    Pledge(double icl, double mrfil, double ll, double air, unsigned short durationIndays);
+    Pledge(double icl, double mrfil, double ll, double air, unsigned short durationInDays);
 
     const double m_initCollaLevel;
     const double m_refillLevel;
@@ -45,7 +45,7 @@ class BabelPledge: public Pledge {
  */
 
 public:
-    BabelPledge(unsigned short durationIndays);
+    BabelPledge(unsigned short durationInDays);
 
     double getValue(double entryPrice, double currPrice, double quantity) const override;
     double getLiqPriceRatio() const override;
@@ -69,7 +69,7 @@ class GateioPledge: public Pledge {
  */
 
 public:
-    GateioPledge(unsigned short durationIndays);
+    GateioPledge(unsigned short durationInDays);
 
     double getValue(double entryPrice, double currPrice, double quantity) const override {return 0;}
     double getLiqPriceRatio() const override {return 0;}

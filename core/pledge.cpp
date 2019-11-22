@@ -5,9 +5,9 @@
 using std::cout;
 using std::endl;
 
-Pledge::Pledge(double icl, double mrfil, double ll, double air, unsigned short td) :
+Pledge::Pledge(double icl, double mrfil, double ll, double air, unsigned short durationInDays) :
     m_initCollaLevel(icl), m_refillLevel(mrfil), m_liqLevel(ll),
-    m_annualizedInterestsRate(air), m_termInDays(td)
+    m_annualizedInterestsRate(air), m_termInDays(durationInDays)
 {
     m_dailyInterests = m_annualizedInterestsRate/ 365;
 
@@ -22,8 +22,8 @@ Pledge::Pledge(double icl, double mrfil, double ll, double air, unsigned short t
     m_liqPriceRatio2 = m_initCollaLevel / (m_liqLevel * (m_refillCollaRatio2 + 1));
 }
 
-BabelPledge::BabelPledge(unsigned short td) :
-        Pledge(0.6, 0.8, 0.9, 0.0888, td)
+BabelPledge::BabelPledge(unsigned short durationInDays) :
+        Pledge(0.6, 0.8, 0.9, 0.0888, durationInDays)
 {
     m_refundPriceRatio1 = m_initCollaLevel / ((m_refillCollaRatio1 + 1) * m_refundLevel);
     m_refundPriceRatio2 = m_initCollaLevel / ((m_refillCollaRatio2 + 1) * m_refundLevel);
@@ -128,6 +128,6 @@ double BabelPledge::refund() {
     return refundCollaRatio;
 }
 
-GateioPledge::GateioPledge(unsigned short td) : Pledge(0.7, 0.8, 0.9, 0.1388, td)
+GateioPledge::GateioPledge(unsigned short durationInDays) : Pledge(0.7, 0.8, 0.9, 0.1388, durationInDays)
 {
 }
