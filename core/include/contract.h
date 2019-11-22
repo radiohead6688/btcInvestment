@@ -13,7 +13,7 @@ class Contract {
 public:
     Contract(double entryPrice, double btcQuantity, double leverage, ContractSide side);
 
-    double getValue(double price) const;
+    double getValue(double price) const {return 0;}
 
 private:
     const double m_entryPrice;

@@ -5,11 +5,11 @@
 using std::cout;
 using std::endl;
 
-Pledge::Pledge(double icl, double mrfil, double ll, double ai, unsigned short td) :
+Pledge::Pledge(double icl, double mrfil, double ll, double air, unsigned short td) :
     m_initCollaLevel(icl), m_refillLevel(mrfil), m_liqLevel(ll),
-    m_annualizedInterests(ai), m_termInDays(td)
+    m_annualizedInterestsRate(air), m_termInDays(td)
 {
-    m_dailyInterests = ai / 365;
+    m_dailyInterests = m_annualizedInterestsRate/ 365;
 
     m_liqPriceRatio = m_initCollaLevel / m_liqLevel;
 
@@ -40,26 +40,29 @@ BabelPledge::BabelPledge(unsigned short td) :
          << "second refund price: " << m_refundPriceRatio2 << endl;
 }
 
-double BabelPledge::getValue(double price) const
+double BabelPledge::getValue(double entryPrice, double currPrice, double quantity) const
 {
     double ret = 0.0;
+    double liqPrice = entryPrice * getLiqPriceRatio();
+    if (currPrice <= liqPrice) {
+        return 0.0;
+    }
 
-
-    return ret;
+    return quantity * (currPrice - m_initCollaLevel * entryPrice);
 }
 
-double BabelPledge::getLiqPrice(double entryPrice) const {
-    double liqPrice;
+double BabelPledge::getLiqPriceRatio() const {
+    double liqPriceRatio;
     try {
         switch (m_refilled - m_refunded) {
             case 0:
-                liqPrice = entryPrice * m_liqPriceRatio;
+                liqPriceRatio = m_liqPriceRatio;
                 break;
             case 1:
-                liqPrice = entryPrice * m_liqPriceRatio1;
+                liqPriceRatio = m_liqPriceRatio1;
                 break;
             case 2:
-                liqPrice = entryPrice * m_liqPriceRatio2;
+                liqPriceRatio = m_liqPriceRatio2;
                 break;
             default:
                 cout << "Refilled too many times. Check strategy." << endl;
@@ -70,7 +73,7 @@ double BabelPledge::getLiqPrice(double entryPrice) const {
         exit(-1);
     }
 
-    return liqPrice;
+    return liqPriceRatio;
 }
 
 double BabelPledge::refill() {
@@ -84,7 +87,7 @@ double BabelPledge::refill() {
                 refillCollaRatio = m_refillCollaRatio2 - m_refillCollaRatio1;
                 break;
             default:
-                cout << "Refilled twice already. Rekt!" << endl;
+                cout << "Refilled twice already." << endl;
                 throw;
                 break;
         }

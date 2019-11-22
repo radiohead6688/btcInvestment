@@ -24,7 +24,7 @@ private:
     Contract* m_contract;
     Pledge* m_pledge;
 
-    double m_initQuantityHolding;
-    double m_initQuantityContract;
-    double m_initQuantityPledge;
+    double m_quantityHolding;
+    double m_quantityContract;
+    double m_quantityPledge;
 };

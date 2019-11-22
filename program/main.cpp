@@ -80,8 +80,17 @@ void calculateStrategy() {
 
 int main()
 {
+    double elecProp = 0.7;
+    double entryPrice = 10000;
+    double quantity = 100;
+    double hProp = 0;
+    double pProp = 1;
+    double cProp = 0;
+    PledgeType pledgeType = PledgeType::BabelPledgeType;
+    double durationInDays = 90;
+
     //calculateStrategy();
-    //Strategy s(0.7, 100, 10000, 0, 1, 0);
+    Strategy s(elecProp, entryPrice, quantity, hProp, pProp, cProp, pledgeType, durationInDays);
     //BabelPledge* b = new BabelPledge(0.6, 0.8, 0.4, 0.9, 0.0888, 30);
 
     //Strategy s(0.7, 10000, b, 1);

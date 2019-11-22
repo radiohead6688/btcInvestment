@@ -13,12 +13,12 @@ enum class PledgeType: uint16_t {
 
 class Pledge {
 protected:
-    Pledge(double icl, double mrfil, double ll, double ai, unsigned short td);
+    Pledge(double icl, double mrfil, double ll, double air, unsigned short durationIndays);
 
     const double m_initCollaLevel;
     const double m_refillLevel;
     const double m_liqLevel;
-    const double m_annualizedInterests;
+    const double m_annualizedInterestsRate;
     const unsigned short m_termInDays;
     double m_dailyInterests;
     double m_liqPriceRatio;
@@ -29,18 +29,28 @@ protected:
     double m_refillCollaRatio1, m_refillCollaRatio2;
 
 public:
-    virtual double getValue(double price) const = 0;
-
+    virtual double getValue(double entryPrice, double currPrice, double quantity) const = 0;
+    virtual double getLiqPriceRatio() const = 0;
+    virtual double refill() = 0;
 };
 
 class BabelPledge: public Pledge {
+
+/*
+ * initial collateral level = 0.6
+ * margin refill level = 0.8
+ * margin refund level = 0.4
+ * liquidation level = 0.9
+ * annualized interests rate = 0.0888
+ */
+
 public:
-    BabelPledge(unsigned short td);
+    BabelPledge(unsigned short durationIndays);
 
-    double getValue(double price) const override;
+    double getValue(double entryPrice, double currPrice, double quantity) const override;
+    double getLiqPriceRatio() const override;
+    double refill() override;
 
-    double getLiqPrice(double entryPrice) const;
-    double refill();
     double refund();
 
 private:
@@ -51,8 +61,17 @@ private:
 };
 
 class GateioPledge: public Pledge {
-public:
-    GateioPledge(unsigned short td);
 
-    double getValue(double price) const override;
+/*
+ * initial collateral level = 0.7
+ * margin refill level = 0.8
+ * liquidation level = 0.9
+ */
+
+public:
+    GateioPledge(unsigned short durationIndays);
+
+    double getValue(double entryPrice, double currPrice, double quantity) const override {return 0;}
+    double getLiqPriceRatio() const override {return 0;}
+    double refill() override {return 0;}
 };

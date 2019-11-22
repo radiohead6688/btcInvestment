@@ -1,5 +1,25 @@
 #include "strategy.h"
 
+struct Config {
+    double elecProp;
+    double entryPrice;
+    double quantity;
+    double durationInDays;
+
+    struct {
+        double hProp;
+    } holding;
+
+    struct {
+        double pProp;
+        PledgeType type;
+    } pledge;
+
+    struct {
+        double cProp;
+    } contract;
+};
+
 Strategy::Strategy(double elecProp, double entryPrice, double quantity, double hProp, double pProp,
     double cProp, PledgeType pType, unsigned short days) : m_elecProp(elecProp), m_entryPrice(entryPrice), m_initQuantity(quantity)
 {
@@ -17,53 +37,26 @@ Strategy::Strategy(double elecProp, double entryPrice, double quantity, double h
         default:
             break;
     }
+
+    m_quantityHolding = quantity * hProp;
+    m_quantityPledge = quantity * pProp;
+    m_quantityContract = quantity * cProp;
 }
 
-//Strategy::Strategy(double elecProp, double entryPrice, Pledge* p, double qp) :
-    //m_elecProp(elecProp), m_entryPrice(entryPrice),  m_pledge(p), m_quantityPledge(qp)
-//{
-    //m_holding = nullptr;
-    //m_contract = nullptr;
-
-    //m_quantityHolding = 0.0;
-    //m_quantityContract = 0.0;
-
-//}
-
-//Strategy::Strategy(double elecProp, double entryPrice, Holding* h, double qh) :
-    //m_elecProp(elecProp), m_entryPrice(entryPrice),  m_holding(h), m_quantityHolding(qh)
-//{
-    //m_pledge = nullptr;
-    //m_contract = nullptr;
-
-    //m_quantityPledge= 0.0;
-    //m_quantityContract = 0.0;
-//}
-
-//Strategy::Strategy(double elecProp, double entryPrice, Contract* c, double qc) :
-    //m_elecProp(elecProp), m_entryPrice(entryPrice),  m_contract(c), m_quantityContract(qc)
-//{
-    //m_pledge = nullptr;
-    //m_holding= nullptr;
-
-    //m_quantityHolding= 0.0;
-    //m_quantityPledge= 0.0;
-//}
-
-double Strategy::getValue(double price) const
+double Strategy::getValue(double currPrice) const
 {
     double ret = 0.0;
 
     if (m_holding){
-        ret += m_holding->getValue(price);
+        ret += m_holding->getValue(currPrice);
     }
 
     if (m_pledge){
-        ret += m_pledge->getValue(price);
+        ret += m_pledge->getValue(m_entryPrice, currPrice, m_quantityPledge);
     }
 
     if (m_contract){
-        ret += m_contract->getValue(price);
+        ret += m_contract->getValue(currPrice);
     }
 
     return ret;
