@@ -22,6 +22,24 @@ Pledge::Pledge(double icl, double mrfil, double ll, double air) :
     m_liqPriceRatio2 = m_initCollaLevel / (m_liqLevel * (m_refillCollaRatio2 + 1));
 }
 
+/*
+ * @brief Returns ROE percentage (quantity-base)
+ * @param entryPrice    entry price
+ * @param price         current price
+ * @return Returns the Return On Equity percentage
+ * @TODO correct the ratio
+ */
+double Pledge::getROEPct(double entryPrice, double price,
+        unsigned short duration) const
+{
+    double ret = 0.0;
+    if (price / entryPrice <= getLiqPriceRatio()) {
+        return 0.0;
+    }
+
+    return 1 - m_initCollaLevel * entryPrice / price * (1 + duration * m_dailyInterests);
+}
+
 BabelPledge::BabelPledge() :
         Pledge(0.6, 0.8, 0.9, 0.0888)
 {
@@ -39,24 +57,6 @@ BabelPledge::BabelPledge() :
          //<< "second refill ratio: " << m_refillCollaRatio2 << endl
          //<< "liquidation price after second refill: " << m_liqPriceRatio2 << endl
          //<< "second refund price: " << m_refundPriceRatio2 << endl;
-}
-
-/*
- * @brief Returns ROE percentage
- * @param entryPrice    entry price
- * @param price         current price
- * @return Returns the Return On Equity percentage
- * @TODO correct the ratio
- */
-double BabelPledge::getROEPct(double entryPrice, double price,
-        unsigned short duration) const
-{
-    double ret = 0.0;
-    if (price / entryPrice <= getLiqPriceRatio()) {
-        return 0.0;
-    }
-
-    return 1 - m_initCollaLevel * entryPrice / price * (1 + duration * m_dailyInterests);
 }
 
 double BabelPledge::getLiqPriceRatio() const {
