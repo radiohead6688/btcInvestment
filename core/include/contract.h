@@ -13,7 +13,7 @@ class Contract {
 public:
     Contract(double leverage, ContractSide side);
 
-    double getValue(double entryPrice, double price, double quantity) const;
+    double getROEPct(double entryPrice, double price) const;
     double getLiqPriceRatio() const {return m_liqPriceRatio;}
 
 private:

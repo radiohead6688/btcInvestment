@@ -6,12 +6,12 @@ double Holding::getValue(double price, double quantity) const
     return price * quantity;
 }
 
-double Holding::getSellValue(double price, double quantity) const
+/*
+ * @brief Calculate the quantity which takes trading fee into consideration
+ * @param targetQty         target quantity
+ * @return Returns trade quantity
+ */
+double Holding::getTradeQty(double targetQty) const
 {
-    return price * quantity * (1 - m_fee);
-}
-
-double Holding::getBuyQuantity(double price, double usdtQuantity) const
-{
-    return (usdtQuantity / price) * (1 - m_fee);
+    return targetQty / (1 - m_fee);
 }

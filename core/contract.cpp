@@ -22,7 +22,7 @@ Contract::Contract(double leverage, ContractSide side) : m_leverage(leverage), m
     }
 }
 
-double Contract::getValue(double entryPrice, double price, double quantity) const {
+double Contract::getROEPct(double entryPrice, double price) const {
     double liqPrice = entryPrice * m_liqPriceRatio;
     std::cout << liqPrice << std::endl;
 
@@ -32,8 +32,7 @@ double Contract::getValue(double entryPrice, double price, double quantity) cons
                 std::cout << "Price is lower than liquidation price. Rekt!\n";
                 return 0.0;
             } else {
-                return (quantity + (1/entryPrice - 1/price) * quantity * entryPrice *
-                        m_leverage) * price;
+                return 1 + (1 - entryPrice / price) * m_leverage;
             }
             break;
         case ContractSide::SellShortType:
@@ -41,8 +40,7 @@ double Contract::getValue(double entryPrice, double price, double quantity) cons
                 std::cout << "Price is higher than liquidation price. Rekt!\n";
                 return 0.0;
             } else {
-                return (quantity + (1/price - 1/entryPrice) * quantity * entryPrice *
-                        m_leverage) * price;
+                return 1 + (entryPrice / price - 1) * m_leverage;
             }
             break;
         case ContractSide::UnknownType:

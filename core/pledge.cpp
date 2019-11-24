@@ -41,16 +41,22 @@ BabelPledge::BabelPledge() :
          //<< "second refund price: " << m_refundPriceRatio2 << endl;
 }
 
-double BabelPledge::getValue(double entryPrice, double price, double quantity,
+/*
+ * @brief Returns ROE percentage
+ * @param entryPrice    entry price
+ * @param price         current price
+ * @return Returns the Return On Equity percentage
+ * @TODO correct the ratio
+ */
+double BabelPledge::getROEPct(double entryPrice, double price,
         unsigned short duration) const
 {
     double ret = 0.0;
-    double liqPrice = entryPrice * getLiqPriceRatio();
-    if (price <= liqPrice) {
+    if (price / entryPrice <= getLiqPriceRatio()) {
         return 0.0;
     }
 
-    return quantity * (price - m_initCollaLevel * entryPrice * (1 + duration * m_dailyInterests));
+    return 1 - m_initCollaLevel * entryPrice / price * (1 + duration * m_dailyInterests);
 }
 
 double BabelPledge::getLiqPriceRatio() const {

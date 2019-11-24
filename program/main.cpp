@@ -94,8 +94,8 @@ void testStrategy() {
     Strategy s(elecProp, entryPrice, quantity, hProp, pProp, cProp, pledgeType, durationInDays,
         tradeFee, leverage, contractSide);
 
-    double value = s.getValue(10000);
-    cout << value << endl;
+    double qty = s.getQty(10000);
+    cout << qty << endl;
 
 }
 

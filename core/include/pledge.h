@@ -28,7 +28,8 @@ protected:
     double m_refillCollaRatio1, m_refillCollaRatio2;
 
 public:
-    virtual double getValue(double entryPrice, double price, double quantity,
+    virtual ~Pledge() {}
+    virtual double getROEPct(double entryPrice, double price,
             unsigned short duration) const = 0;
     virtual double getLiqPriceRatio() const = 0;
     virtual double refill() = 0;
@@ -47,7 +48,7 @@ class BabelPledge: public Pledge {
 public:
     BabelPledge();
 
-    double getValue(double entryPrice, double price, double quantity,
+    virtual double getROEPct(double entryPrice, double price,
             unsigned short duration) const override;
     double getLiqPriceRatio() const override;
     double refill() override;
@@ -72,8 +73,8 @@ class GateioPledge: public Pledge {
 public:
     GateioPledge();
 
-    double getValue(double entryPrice, double price, double quantity,
-            unsigned short duration) const override {return 0;}
+    virtual double getROEPct(double entryPrice, double price,
+            unsigned short duration) const override {return 0.0;}
     double getLiqPriceRatio() const override {return 0;}
     double refill() override {return 0;}
 };

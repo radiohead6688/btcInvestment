@@ -9,6 +9,5 @@ public:
     explicit Holding() {}
 
     double getValue(double price, double quantity) const;
-    double getSellValue(double price, double quantity) const;
-    double getBuyQuantity(double price, double quantity) const;
+    double getTradeQty(double targetQty) const;
 };
