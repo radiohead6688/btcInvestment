@@ -12,8 +12,8 @@ struct Config {
     double durationInDays;
 
     struct {
-        double hProp;
-    } holding;
+        double tProp;
+    } trade;
 
     struct {
         double pProp;
@@ -25,69 +25,82 @@ struct Config {
     } contract;
 };
 
-Strategy::Strategy(double elecProp, double entryPrice, double quantity, double hProp,
+Strategy::Strategy(double elecProp, double entryPrice, double quantity, double tProp,
         double pProp, double cProp, PledgeType pType, unsigned short durationInDays,
-        double tradeFee, double leverage, ContractSide cSide) : m_elecProp(elecProp),
-        m_entryPrice(entryPrice), m_initQty(quantity), m_pledgeDuration(durationInDays)
+        double tradeFee, double leverage, ContractSide cSide)
+        : m_elecProp(elecProp), m_entryPrice(entryPrice), m_initQty(quantity),
+        m_pledgeDuration(durationInDays), m_balance(quantity), m_elecQty(elecProp * quantity)
 {
-    m_elecQty = elecProp * m_initQty;
-
-    initHolding(tradeFee);
+    initTrade(tProp, tradeFee);
     initPledge(pProp, pType);
     initContract(cProp, leverage, cSide);
 
-
-
     payElecFee();
+
+    cout << "Balance: " << m_balance << endl;
 
     //TODO: change m_pledge to real days
     m_pledgePast = m_pledgeDuration;
-
 }
 
 Strategy::~Strategy() {
-    delete m_holding;
+    delete m_trade;
     delete m_pledge;
     delete m_contract;
 }
 
 double Strategy::getQty(double price) const
 {
-    return m_holdingQty +
-           m_usdtQty / price +
+    return m_balance +
+           m_usdtBalance/ price +
            m_pledgeQty * m_pledge->getROEPct(m_entryPrice, price, m_pledgePast) +
            m_contractQty * m_contract->getROEPct(m_entryPrice, price);
 }
 
 void Strategy::sell(double targetQty, double price) {
-    double quantity = m_holding->getTradeQty(targetQty);
-    if (quantity > m_holdingQty) {
-        cout << "Failed to sell the desired quantity. Insufficient holding balance!\n"
+    if (targetQty == 0) {
+        return;
+    }
+
+    double quantity = m_trade->getTradeQty(targetQty);
+    if (quantity > m_balance) {
+        cout << "Failed to sell the desired quantity. Insufficient balance!\n"
              << "Need: " << quantity << endl
-             << "Holding: " << m_holdingQty << endl;
+             << "Balance: " << m_balance << endl;
         exit(-1);
     }
-    m_holdingQty -= quantity;
-    m_usdtQty += targetQty * price;
+
+    m_balance -= quantity;
+    m_usdtBalance += targetQty * price;
+
+    cout << "Sold " << quantity << " btc at price " << price
+         << " for " << targetQty * price << " usdt.\n";
 }
 
 void Strategy::purchase(double targetQty, double price) {
-    double quantity = m_holding->getTradeQty(targetQty);
-    double usdtQty= quantity * price;
+    if (targetQty == 0) {
+        return;
+    }
 
-    if (usdtQty < m_usdtQty) {
-        cout << "Failed to purchase the desired quantity. Insufficient usdt balance!\n"
+    double quantity = m_trade->getTradeQty(targetQty);
+    double usdtQty = quantity * price;
+
+    if (usdtQty < m_usdtBalance) {
+        cout << "Failed to purchase the desired quantity. Insufficient usdt balance!" << endl
              << "Need: " << quantity << " usdt" << endl
-             << "USDT Balance: " << m_usdtQty << " usdt" << endl;
+             << "USDT Balance: " << m_usdtBalance << " usdt" << endl;
         exit(-1);
     }
-    m_usdtQty -= usdtQty;
-    m_holdingQty += targetQty;
+    m_usdtBalance -= usdtQty;
+    m_balance += targetQty;
+
+    cout << "Purchased " << targetQty << " btc at price " << price
+         << " using " << quantity * price << " usdt." << endl;
 }
 
-void Strategy::initHolding(double tradeFee) {
-    m_holding = new Holding(tradeFee);
-    m_holdingQty = m_initQty;
+void Strategy::initTrade(double tProp, double tradeFee) {
+    m_trade = new Trade(tradeFee);
+    sell(m_initQty * tProp, m_entryPrice);
 }
 
 void Strategy::initPledge(double pProp, PledgeType pType) {
@@ -105,25 +118,38 @@ void Strategy::initPledge(double pProp, PledgeType pType) {
     }
 
     double pledgeQty = pProp * m_initQty;
-    if (pledgeQty > m_holdingQty) {
-        cout << "Failed to initiate pledge. Insufficient holding balance\n";
+    if (pledgeQty > m_balance) {
+        cout << "Failed to initiate pledge. Insufficient balance" << endl
+             << "Need: " << pledgeQty << endl
+             << "Balance: " << m_balance << endl;
+        exit(-1);
     }
+    m_balance -= pledgeQty;
     m_pledgeQty += pledgeQty;
-    m_holdingQty -= pledgeQty;
-    m_usdtQty += m_pledge->getInitCollaLevel() * m_pledgeQty * m_entryPrice;
+    m_usdtBalance += m_pledge->getInitCollaLevel() * m_pledgeQty * m_entryPrice;
 }
 
 void Strategy::initContract(double cProp, double leverage, ContractSide cSide) {
     m_contract = new Contract(leverage, cSide);
     double contractQty = cProp * m_initQty;
-    if (contractQty > m_holdingQty) {
-        cout << "Failed to initiate contract. Insufficient holding balance\n";
+    if (contractQty > m_balance) {
+        cout << "Failed to initiate contract. Insufficient balance" << endl
+             << "Need: " << contractQty << endl
+             << "Balance: " << m_balance << endl;
+        exit(-1);
     }
+    m_balance -= contractQty;
     m_contractQty += contractQty;
-    m_holdingQty -= contractQty;
 }
 
 void Strategy::payElecFee() {
-    sell(m_elecQty, m_entryPrice);
-    m_usdtQty -= m_elecQty * m_entryPrice;
+    double elecFee = m_elecQty * m_entryPrice;
+    if (elecFee > m_usdtBalance) {
+        cout << "Failed to pay electricity fee. Insufficient usdt balance" << endl
+             << "Need: " << elecFee << endl
+             << "Balance: " << m_balance << endl;
+        exit(-1);
+    }
+    m_usdtBalance -= elecFee;
+    cout << "Paid electricity fee of " << elecFee << " usdt\n";
 }

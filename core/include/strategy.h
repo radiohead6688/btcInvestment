@@ -1,18 +1,18 @@
 #pragma once
 
-#include "holding.h"
+#include "trade.h"
 #include "pledge.h"
 #include "contract.h"
 
 class Strategy {
 public:
-    Strategy(double elecProp, double entryPrice, double quantity, double hProp, double pProp,
+    Strategy(double elecProp, double entryPrice, double quantity, double tProp, double pProp,
             double cProp, PledgeType pType, unsigned short days, double tradeFee, double leverage,
             ContractSide contractSide);
 
     ~Strategy();
 
-    void initHolding(double tradeFee);
+    void initTrade(double tProp, double tradeFee);
     void initPledge(double pProp, PledgeType pType);
     void initContract(double cProp, double leverage, ContractSide side);
 
@@ -22,20 +22,21 @@ public:
     void payElecFee();
 
 private:
-    double m_elecProp;
-    double m_initQty;
-    double m_entryPrice;
+    const double m_initQty;
+    const double m_elecProp;
+    const double m_elecQty;
+    const double m_entryPrice;
 
-
-    Holding* m_holding;
+    Trade* m_trade;
     Contract* m_contract;
     Pledge* m_pledge;
 
-    double m_elecQty;
-    double m_holdingQty;
+    double m_sellQty;
+
     double m_contractQty;
     double m_pledgeQty;
-    double m_usdtQty= 0;
+    double m_balance;
+    double m_usdtBalance = 0;
 
     unsigned short m_pledgeDuration;
     unsigned short m_pledgePast;

@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "strategy.h"
-#include "holding.h"
+#include "trade.h"
 #include "contract.h"
 #include "pledge.h"
 
@@ -81,21 +81,21 @@ void calculateStrategy() {
 void testStrategy() {
     double elecProp = 0.7;
     double entryPrice = 10000;
-    double quantity = 10;
-    double hProp = 0.4;
-    double pProp = 0.4;
-    double cProp = 0.2;
+    double quantity = 100;
+    double tProp = 0.5;
+    double pProp = 0;
+    double cProp = 0;
     PledgeType pledgeType = PledgeType::BabelPledgeType;
     double durationInDays = 90;
     double tradeFee = 0.001;
     double leverage = 1;
     ContractSide contractSide = ContractSide::SellShortType;
 
-    Strategy s(elecProp, entryPrice, quantity, hProp, pProp, cProp, pledgeType, durationInDays,
+    Strategy s(elecProp, entryPrice, quantity, tProp, pProp, cProp, pledgeType, durationInDays,
         tradeFee, leverage, contractSide);
 
-    double qty = s.getQty(10000);
-    cout << qty << endl;
+    //double qty = s.getQty(10000);
+    //cout << qty << endl;
 
 }
 

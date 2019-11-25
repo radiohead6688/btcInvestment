@@ -1,7 +1,7 @@
 #include <assert.h>
-#include "holding.h"
+#include "trade.h"
 
-double Holding::getValue(double price, double quantity) const
+double Trade::getValue(double price, double quantity) const
 {
     return price * quantity;
 }
@@ -11,7 +11,7 @@ double Holding::getValue(double price, double quantity) const
  * @param targetQty         target quantity
  * @return Returns trade quantity
  */
-double Holding::getTradeQty(double targetQty) const
+double Trade::getTradeQty(double targetQty) const
 {
     return targetQty / (1 - m_fee);
 }
