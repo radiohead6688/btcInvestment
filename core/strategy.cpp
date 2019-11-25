@@ -27,9 +27,10 @@ struct Config {
 
 Strategy::Strategy(double elecProp, double entryPrice, double quantity, double tProp,
         double pProp, double cProp, PledgeType pType, unsigned short durationInDays,
-        double tradeFee, double leverage, ContractSide cSide)
+        double tradeFee, double leverage, ContractSide cSide, double netRefiilTimesLimit)
         : m_elecProp(elecProp), m_entryPrice(entryPrice), m_initQty(quantity),
-        m_pledgeDuration(durationInDays), m_balance(quantity), m_elecQty(elecProp * quantity)
+        m_pledgeDuration(durationInDays), m_balance(quantity), m_elecQty(elecProp * quantity),
+        m_netRefillTimesLimit(netRefiilTimesLimit)
 {
     initTrade(tProp, tradeFee);
     initPledge(pProp, pType);
@@ -126,6 +127,7 @@ void Strategy::initPledge(double pProp, PledgeType pType) {
     }
     m_balance -= pledgeQty;
     m_pledgeQty += pledgeQty;
+    m_initPledgeQty = m_pledgeQty;
     m_usdtBalance += m_pledge->getInitCollaLevel() * m_pledgeQty * m_entryPrice;
 }
 
@@ -151,5 +153,33 @@ void Strategy::payElecFee() {
         exit(-1);
     }
     m_usdtBalance -= elecFee;
-    cout << "Paid electricity fee of " << elecFee << " usdt\n";
+    cout << "Paid electricity fee of " << elecFee << " usdt" << endl;
+}
+
+void Strategy::refillPledge() {
+    if (m_refilledTimes - m_refundedTimes > m_netRefillTimesLimit) {
+        return;
+    }
+    double refillQty = m_initPledgeQty * m_pledge->getRefillRatio(m_refilledTimes - m_refundedTimes);
+    if (refillQty > m_balance) {
+        cout << "Failed to refill pledge. Insufficient balance" << endl
+             << "Need: " << refillQty << endl
+             << "Balance: " << m_balance << endl;
+        exit(-1);
+    }
+    m_balance -= refillQty;
+    m_pledgeQty += refillQty;
+    m_refilledTimes += 1;
+    cout << "Refilled pledge with " << refillQty << " btc." << endl;
+}
+
+void Strategy::endPledge(double price) {
+    if (m_pledgeQty == 0) {
+        return;
+    }
+
+    double quantity = m_pledgeQty * m_pledge->getROEPct(m_entryPrice, price, m_pledgePast);
+    m_pledgeQty = 0;
+    m_balance += quantity;
+    cout << "Ended pledge. Get " << quantity << " btc." << endl;
 }

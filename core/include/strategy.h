@@ -8,7 +8,7 @@ class Strategy {
 public:
     Strategy(double elecProp, double entryPrice, double quantity, double tProp, double pProp,
             double cProp, PledgeType pType, unsigned short days, double tradeFee, double leverage,
-            ContractSide contractSide);
+            ContractSide contractSide, double netRefiilTimesLimit);
 
     ~Strategy();
 
@@ -21,23 +21,31 @@ public:
     void purchase(double quantity, double price);
     void payElecFee();
 
+    void refillPledge();
+    void endPledge(double price);
+
 private:
     const double m_initQty;
     const double m_elecProp;
     const double m_elecQty;
     const double m_entryPrice;
+    const unsigned short m_pledgeDuration;
+    const unsigned short m_netRefillTimesLimit;
 
     Trade* m_trade;
     Contract* m_contract;
     Pledge* m_pledge;
 
-    double m_sellQty;
-
     double m_contractQty;
+
     double m_pledgeQty;
+    double m_initPledgeQty;
+    unsigned short m_pledgePast = 0;
+    unsigned short m_refilledTimes = 0;
+    unsigned short m_refundedTimes = 0;
+
     double m_balance;
+
     double m_usdtBalance = 0;
 
-    unsigned short m_pledgeDuration;
-    unsigned short m_pledgePast;
 };

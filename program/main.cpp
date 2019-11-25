@@ -89,10 +89,11 @@ void testStrategy() {
     double durationInDays = 90;
     double tradeFee = 0.001;
     double leverage = 1;
+    unsigned short netRefiilTimesLimit = 1;
     ContractSide contractSide = ContractSide::SellShortType;
 
     Strategy s(elecProp, entryPrice, quantity, tProp, pProp, cProp, pledgeType, durationInDays,
-        tradeFee, leverage, contractSide);
+        tradeFee, leverage, contractSide, netRefiilTimesLimit);
 
     //double qty = s.getQty(10000);
     //cout << qty << endl;

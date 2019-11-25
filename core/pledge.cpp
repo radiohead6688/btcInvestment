@@ -84,10 +84,10 @@ double BabelPledge::getLiqPriceRatio() const {
     return liqPriceRatio;
 }
 
-double BabelPledge::refill() {
-    double refillCollaRatio;;
+double BabelPledge::getRefillRatio(unsigned short netRefilledTimes) {
+    double refillCollaRatio;
     try {
-        switch (m_refilled - m_refunded) {
+        switch (netRefilledTimes) {
             case 0:
                 refillCollaRatio = m_refillCollaRatio1;
                 break;
@@ -103,15 +103,13 @@ double BabelPledge::refill() {
         exit(-1);
     }
 
-    m_refilled += 1;
-
     return refillCollaRatio;
 }
 
-double BabelPledge::refund() {
-    double refundCollaRatio;;
+double BabelPledge::refund(unsigned short netRefilledTimes) {
+    double refundCollaRatio;
     try {
-        switch (m_refilled - m_refunded) {
+        switch (netRefilledTimes) {
             case 0:
                 cout << "Nothing to refund. Check strategy." << endl;
                 throw;
