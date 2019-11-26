@@ -6,9 +6,6 @@
 #include <vector>
 
 #include "strategy.h"
-#include "trade.h"
-#include "contract.h"
-#include "pledge.h"
 
 using std::cin;
 using std::cout;
@@ -60,7 +57,7 @@ void calculateStrategy() {
     //cout << elecProp << " " << productivity << " " << initCollaLevel
          //<< " " << remainCollaRatio << endl;
 
-    double const elecProp = 0.7;
+    double const elecProp = 0.78;
     double const productivity = 130;
     double const initCollaLevel = 0.6;
     double const remainCollaRatio = 0.25;
@@ -78,32 +75,12 @@ void calculateStrategy() {
     cout << "Collateral: " << colla << "\nSell: " << sell << "\nRemaining: " << remain << endl;
 }
 
-void testStrategy() {
-    double elecProp = 0.7;
-    double entryPrice = 10000;
-    double quantity = 100;
-    double tProp = 0.5;
-    double pProp = 0;
-    double cProp = 0;
-    PledgeType pledgeType = PledgeType::BabelPledgeType;
-    double durationInDays = 90;
-    double tradeFee = 0.001;
-    double leverage = 1;
-    unsigned short netRefiilTimesLimit = 1;
-    ContractSide contractSide = ContractSide::SellShortType;
-
-    Strategy s(elecProp, entryPrice, quantity, tProp, pProp, cProp, pledgeType, durationInDays,
-        tradeFee, leverage, contractSide, netRefiilTimesLimit);
-
-    //double qty = s.getQty(10000);
-    //cout << qty << endl;
-
-}
-
 int main()
 {
     //calculateStrategy();
-    testStrategy();
+    //testStrategy();
+    Strategy s;
+    s.run();
 
 
     return 0;

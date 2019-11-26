@@ -1,185 +1,46 @@
 #include <iostream>
 
 #include "strategy.h"
+#include "controller.h"
 
 using std::cout;
 using std::endl;
 
-struct Config {
-    double elecProp;
-    double entryPrice;
-    double quantity;
-    double durationInDays;
+Strategy::Strategy() {
+    double elecProp = 0.7;
+    double entryPrice = 8100;
+    double quantity = 130;
+    double tProp = 0.4546;
+    double pProp = 0.4091;
+    double cProp = 0;
+    PledgeType pledgeType = PledgeType::BabelPledgeType;
+    double durationInDays = 90;
+    //double tradeFee = 0.001;
+    double tradeFee = 0;
+    double leverage = 1;
+    unsigned short netRefiilTimesLimit = 1;
+    ContractSide contractSide = ContractSide::SellShortType;
 
-    struct {
-        double tProp;
-    } trade;
+    m_c = new Controller(elecProp, entryPrice, quantity, tProp, pProp, cProp, pledgeType,
+            durationInDays, tradeFee, leverage, contractSide, netRefiilTimesLimit);
 
-    struct {
-        double pProp;
-        PledgeType type;
-    } pledge;
-
-    struct {
-        double cProp;
-    } contract;
-};
-
-Strategy::Strategy(double elecProp, double entryPrice, double quantity, double tProp,
-        double pProp, double cProp, PledgeType pType, unsigned short durationInDays,
-        double tradeFee, double leverage, ContractSide cSide, double netRefiilTimesLimit)
-        : m_elecProp(elecProp), m_entryPrice(entryPrice), m_initQty(quantity),
-        m_pledgeDuration(durationInDays), m_balance(quantity), m_elecQty(elecProp * quantity),
-        m_netRefillTimesLimit(netRefiilTimesLimit)
-{
-    initTrade(tProp, tradeFee);
-    initPledge(pProp, pType);
-    initContract(cProp, leverage, cSide);
-
-    payElecFee();
-
-    cout << "Balance: " << m_balance << endl;
-
-    //TODO: change m_pledge to real days
-    m_pledgePast = m_pledgeDuration;
+    double refPrices[] = {4000, 4556, 5400, 6075, 7500, 8100, 9135, 1000, 12000, 14000,
+                          18000, 20000, 22400, 24000, 26000, 30000, 50000, 80000};
+    unsigned refPricesSize = sizeof(refPrices) / sizeof(double);
+    m_refPrices.insert(m_refPrices.end(), &refPrices[0], &refPrices[refPricesSize]);
 }
 
 Strategy::~Strategy() {
-    delete m_trade;
-    delete m_pledge;
-    delete m_contract;
+    delete m_c;
 }
 
-double Strategy::getQty(double price) const
-{
-    return m_balance +
-           m_usdtBalance/ price +
-           m_pledgeQty * m_pledge->getROEPct(m_entryPrice, price, m_pledgePast) +
-           m_contractQty * m_contract->getROEPct(m_entryPrice, price);
+void Strategy::run() {
+    cout << "Price\t\tQuantity" << endl;
+
+    for (auto &i : m_refPrices) {
+        double quantity = m_c->getQty(i);
+        cout << i << "\t\t" << quantity << endl;
+    }
 }
 
-void Strategy::sell(double targetQty, double price) {
-    if (targetQty == 0) {
-        return;
-    }
 
-    double quantity = m_trade->getTradeQty(targetQty);
-    if (quantity > m_balance) {
-        cout << "Failed to sell the desired quantity. Insufficient balance!\n"
-             << "Need: " << quantity << endl
-             << "Balance: " << m_balance << endl;
-        exit(-1);
-    }
-
-    m_balance -= quantity;
-    m_usdtBalance += targetQty * price;
-
-    cout << "Sold " << quantity << " btc at price " << price
-         << " for " << targetQty * price << " usdt.\n";
-}
-
-void Strategy::purchase(double targetQty, double price) {
-    if (targetQty == 0) {
-        return;
-    }
-
-    double quantity = m_trade->getTradeQty(targetQty);
-    double usdtQty = quantity * price;
-
-    if (usdtQty < m_usdtBalance) {
-        cout << "Failed to purchase the desired quantity. Insufficient usdt balance!" << endl
-             << "Need: " << quantity << " usdt" << endl
-             << "USDT Balance: " << m_usdtBalance << " usdt" << endl;
-        exit(-1);
-    }
-    m_usdtBalance -= usdtQty;
-    m_balance += targetQty;
-
-    cout << "Purchased " << targetQty << " btc at price " << price
-         << " using " << quantity * price << " usdt." << endl;
-}
-
-void Strategy::initTrade(double tProp, double tradeFee) {
-    m_trade = new Trade(tradeFee);
-    sell(m_initQty * tProp, m_entryPrice);
-}
-
-void Strategy::initPledge(double pProp, PledgeType pType) {
-    switch (pType) {
-        case PledgeType::BabelPledgeType:
-            m_pledge = new BabelPledge();
-            break;
-        case PledgeType::GateioPledgeType:
-            m_pledge = new GateioPledge();
-            break;
-        case PledgeType::MatrixportPledgeType:
-            break;
-        default:
-            break;
-    }
-
-    double pledgeQty = pProp * m_initQty;
-    if (pledgeQty > m_balance) {
-        cout << "Failed to initiate pledge. Insufficient balance" << endl
-             << "Need: " << pledgeQty << endl
-             << "Balance: " << m_balance << endl;
-        exit(-1);
-    }
-    m_balance -= pledgeQty;
-    m_pledgeQty += pledgeQty;
-    m_initPledgeQty = m_pledgeQty;
-    m_usdtBalance += m_pledge->getInitCollaLevel() * m_pledgeQty * m_entryPrice;
-}
-
-void Strategy::initContract(double cProp, double leverage, ContractSide cSide) {
-    m_contract = new Contract(leverage, cSide);
-    double contractQty = cProp * m_initQty;
-    if (contractQty > m_balance) {
-        cout << "Failed to initiate contract. Insufficient balance" << endl
-             << "Need: " << contractQty << endl
-             << "Balance: " << m_balance << endl;
-        exit(-1);
-    }
-    m_balance -= contractQty;
-    m_contractQty += contractQty;
-}
-
-void Strategy::payElecFee() {
-    double elecFee = m_elecQty * m_entryPrice;
-    if (elecFee > m_usdtBalance) {
-        cout << "Failed to pay electricity fee. Insufficient usdt balance" << endl
-             << "Need: " << elecFee << endl
-             << "Balance: " << m_balance << endl;
-        exit(-1);
-    }
-    m_usdtBalance -= elecFee;
-    cout << "Paid electricity fee of " << elecFee << " usdt" << endl;
-}
-
-void Strategy::refillPledge() {
-    if (m_refilledTimes - m_refundedTimes > m_netRefillTimesLimit) {
-        return;
-    }
-    double refillQty = m_initPledgeQty * m_pledge->getRefillRatio(m_refilledTimes - m_refundedTimes);
-    if (refillQty > m_balance) {
-        cout << "Failed to refill pledge. Insufficient balance" << endl
-             << "Need: " << refillQty << endl
-             << "Balance: " << m_balance << endl;
-        exit(-1);
-    }
-    m_balance -= refillQty;
-    m_pledgeQty += refillQty;
-    m_refilledTimes += 1;
-    cout << "Refilled pledge with " << refillQty << " btc." << endl;
-}
-
-void Strategy::endPledge(double price) {
-    if (m_pledgeQty == 0) {
-        return;
-    }
-
-    double quantity = m_pledgeQty * m_pledge->getROEPct(m_entryPrice, price, m_pledgePast);
-    m_pledgeQty = 0;
-    m_balance += quantity;
-    cout << "Ended pledge. Get " << quantity << " btc." << endl;
-}

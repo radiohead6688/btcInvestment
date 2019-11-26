@@ -3,8 +3,10 @@
 
 #include "contract.h"
 
-Contract::Contract(double leverage, ContractSide side) : m_leverage(leverage), m_side(side)
-{
+using std::cout;
+using std::endl;
+
+Contract::Contract(double leverage, ContractSide side) : m_leverage(leverage), m_side(side) {
     assert(m_leverage > 0);
     switch (side) {
         case ContractSide::BuyLongType:
@@ -24,12 +26,11 @@ Contract::Contract(double leverage, ContractSide side) : m_leverage(leverage), m
 
 double Contract::getROEPct(double entryPrice, double price) const {
     double liqPrice = entryPrice * m_liqPriceRatio;
-    std::cout << liqPrice << std::endl;
 
     switch (m_side) {
         case ContractSide::BuyLongType:
             if (price <= liqPrice) {
-                std::cout << "Price is lower than liquidation price. Rekt!\n";
+                cout << "Price is lower than liquidation price. Rekt :(" << endl;
                 return 0.0;
             } else {
                 return 1 + (1 - entryPrice / price) * m_leverage;
@@ -37,7 +38,7 @@ double Contract::getROEPct(double entryPrice, double price) const {
             break;
         case ContractSide::SellShortType:
             if (price >= liqPrice) {
-                std::cout << "Price is higher than liquidation price. Rekt!\n";
+                cout << "Price is higher than liquidation price. Rekt :(" << endl;
                 return 0.0;
             } else {
                 return 1 + (entryPrice / price - 1) * m_leverage;

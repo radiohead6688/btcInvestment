@@ -33,7 +33,8 @@ public:
     virtual double getRefillRatio(unsigned short netRefiilTimes) = 0;
 
     double getInitCollaLevel() {return m_initCollaLevel;}
-    double getROEPct(double entryPrice, double price, unsigned short duration) const;
+    double getROEPct(double entryPrice, double price, double currQty, double initQty,
+            unsigned short duration) const;
 };
 
 class BabelPledge: public Pledge {

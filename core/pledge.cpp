@@ -7,8 +7,8 @@ using std::endl;
 
 Pledge::Pledge(double icl, double mrfil, double ll, double air) :
     m_initCollaLevel(icl), m_refillLevel(mrfil), m_liqLevel(ll),
-    m_annualizedInterestsRate(air)
-{
+    m_annualizedInterestsRate(air) {
+
     m_dailyInterests = m_annualizedInterestsRate/ 365;
 
     m_liqPriceRatio = m_initCollaLevel / m_liqLevel;
@@ -29,20 +29,19 @@ Pledge::Pledge(double icl, double mrfil, double ll, double air) :
  * @return Returns the Return On Equity percentage
  * @TODO correct the ratio
  */
-double Pledge::getROEPct(double entryPrice, double price,
-        unsigned short duration) const
-{
+double Pledge::getROEPct(double entryPrice, double price, double currQty, double initQty,
+        unsigned short duration) const {
+
     double ret = 0.0;
     if (price / entryPrice <= getLiqPriceRatio()) {
         return 0.0;
     }
 
-    return 1 - m_initCollaLevel * entryPrice / price * (1 + duration * m_dailyInterests);
+    return 1 - m_initCollaLevel * (entryPrice / price) * (initQty / currQty)
+            * (1 + duration * m_dailyInterests);
 }
 
-BabelPledge::BabelPledge() :
-        Pledge(0.6, 0.8, 0.9, 0.0888)
-{
+BabelPledge::BabelPledge() : Pledge(0.6, 0.8, 0.9, 0.0888) {
     m_refundPriceRatio1 = m_initCollaLevel / ((m_refillCollaRatio1 + 1) * m_refundLevel);
     m_refundPriceRatio2 = m_initCollaLevel / ((m_refillCollaRatio2 + 1) * m_refundLevel);
 
@@ -134,6 +133,5 @@ double BabelPledge::refund(unsigned short netRefilledTimes) {
     return refundCollaRatio;
 }
 
-GateioPledge::GateioPledge() : Pledge(0.7, 0.8, 0.9, 0.1388)
-{
+GateioPledge::GateioPledge() : Pledge(0.7, 0.8, 0.9, 0.1388) {
 }

@@ -1,8 +1,7 @@
 #include <assert.h>
 #include "trade.h"
 
-double Trade::getValue(double price, double quantity) const
-{
+double Trade::getValue(double price, double quantity) const {
     return price * quantity;
 }
 
@@ -11,7 +10,6 @@ double Trade::getValue(double price, double quantity) const
  * @param targetQty         target quantity
  * @return Returns trade quantity
  */
-double Trade::getTradeQty(double targetQty) const
-{
+double Trade::getTradeQty(double targetQty) const {
     return targetQty / (1 - m_fee);
 }
