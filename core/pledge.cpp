@@ -30,11 +30,13 @@ Pledge::Pledge(double icl, double mrfil, double ll, double air) :
  * @TODO correct the ratio
  */
 double Pledge::getROEPct(double entryPrice, double price, double currQty, double initQty,
-        unsigned short duration) const {
+        unsigned short duration, unsigned short netRefilledTimes) const {
+    if (price == 0 || currQty == 0) {
+        return 0;
+    }
 
-    double ret = 0.0;
-    if (price / entryPrice <= getLiqPriceRatio()) {
-        return 0.0;
+    if (price / entryPrice <= getLiqPriceRatio(netRefilledTimes)) {
+        return 0;
     }
 
     return 1 - m_initCollaLevel * (entryPrice / price) * (initQty / currQty)
@@ -58,10 +60,32 @@ BabelPledge::BabelPledge() : Pledge(0.6, 0.8, 0.9, 0.0888) {
          //<< "second refund price: " << m_refundPriceRatio2 << endl;
 }
 
-double BabelPledge::getLiqPriceRatio() const {
+double BabelPledge::getRefillPriceRatio(unsigned short netRefilledTimes) const {
+    double ret;
+    try {
+        switch (netRefilledTimes) {
+            case 0:
+                ret = m_refillPriceRatio1;
+                break;
+            case 1:
+                ret = m_refillPriceRatio2;
+                break;
+            default:
+                cout << "Refilled too many times. Check strategy." << endl;
+                throw;
+                break;
+        }
+    } catch (const std::exception& e) {
+        exit(-1);
+    }
+
+    return ret;
+}
+
+double BabelPledge::getLiqPriceRatio(unsigned short netRefilledTimes) const {
     double liqPriceRatio;
     try {
-        switch (m_refilled - m_refunded) {
+        switch (netRefilledTimes) {
             case 0:
                 liqPriceRatio = m_liqPriceRatio;
                 break;

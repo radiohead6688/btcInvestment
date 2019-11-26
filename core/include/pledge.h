@@ -29,12 +29,13 @@ protected:
 
 public:
     virtual ~Pledge() {}
-    virtual double getLiqPriceRatio() const = 0;
+    virtual double getRefillPriceRatio(unsigned short netRefilledTimes) const = 0;
+    virtual double getLiqPriceRatio(unsigned short netRefilledTimes) const = 0;
     virtual double getRefillRatio(unsigned short netRefiilTimes) = 0;
 
     double getInitCollaLevel() {return m_initCollaLevel;}
     double getROEPct(double entryPrice, double price, double currQty, double initQty,
-            unsigned short duration) const;
+            unsigned short duration, unsigned short netRefilledTimes) const;
 };
 
 class BabelPledge: public Pledge {
@@ -50,7 +51,8 @@ class BabelPledge: public Pledge {
 public:
     BabelPledge();
 
-    double getLiqPriceRatio() const override;
+    double getRefillPriceRatio(unsigned short netRefilledTimes) const override;
+    double getLiqPriceRatio(unsigned short netRefilledTimes) const override;
     double getRefillRatio(unsigned short netRefiilTimes) override;
 
     double refund(unsigned short netRefilledTimes);
@@ -73,6 +75,7 @@ class GateioPledge: public Pledge {
 public:
     GateioPledge();
 
-    double getLiqPriceRatio() const override {return 0;}
+    double getRefillPriceRatio(unsigned short netRefilledTimes) const override {return 0;}
+    double getLiqPriceRatio(unsigned short netRefilledTimes) const override {return 0;}
     double getRefillRatio(unsigned short netRefiilTimes) override {return 0;}
 };

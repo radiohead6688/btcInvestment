@@ -12,20 +12,24 @@ public:
 
     ~Controller();
 
+    /* Trade interface */
     void initTrade(double tProp, double tradeFee);
-    void initPledge(double pProp, PledgeType pType);
-    void initContract(double cProp, double leverage, ContractSide side);
-
-    double getQty(double price) const;
     void sell(double quantity, double price);
     void purchase(double quantity, double price);
-    void payElecFee();
 
-public:     // Pledge interface
+    /* Pledge interface */
+    void initPledge(double pProp, PledgeType pType);
+    double getPledgeQty(double price);
+    double getRefillPriceRatio() const;
+    double getLiqPriceRatio() const;
     void refillPledge();
     void endPledge(double price);
-    void pledgeLiquidated();
-    double getLiqPrice() const;
+
+    /* Contract interface */
+    void initContract(double cProp, double leverage, ContractSide side);
+
+    double getQty(double price);
+    void payElecFee();
 
 private:
     void increasePledge(double quantity);
@@ -42,15 +46,16 @@ private:
     Contract* m_contract = nullptr;
     Pledge* m_pledge = nullptr;
 
-    double m_contractQty;
+    double m_contractQty= 0;
 
-    double m_pledgeQty;
-    double m_initPledgeQty;
+    double m_pledgeQty = 0;
+    double m_initPledgeQty = 0;;
     unsigned short m_pledgePast = 0;
     unsigned short m_refilledTimes = 0;
     unsigned short m_refundedTimes = 0;
+    bool m_pledgeLiquidated = false;
 
-    double m_balance;
+    double m_balance = 0;
 
     double m_usdtBalance = 0;
 };

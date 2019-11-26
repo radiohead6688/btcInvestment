@@ -11,7 +11,7 @@ Strategy::Strategy() {
     double entryPrice = 8100;
     double quantity = 130;
     double tProp = 0.4546;
-    double pProp = 0.4091;
+    double pProp = 0.409;
     double cProp = 0;
     PledgeType pledgeType = PledgeType::BabelPledgeType;
     double durationInDays = 90;
@@ -24,7 +24,7 @@ Strategy::Strategy() {
     m_c = new Controller(elecProp, entryPrice, quantity, tProp, pProp, cProp, pledgeType,
             durationInDays, tradeFee, leverage, contractSide, netRefiilTimesLimit);
 
-    double refPrices[] = {4000, 4556, 5400, 6075, 7500, 8100, 9135, 1000, 12000, 14000,
+    double refPrices[] = {4000, 4556, 5400, 6075, 7500, 8100, 9135, 10000, 12000, 14000,
                           18000, 20000, 22400, 24000, 26000, 30000, 50000, 80000};
     unsigned refPricesSize = sizeof(refPrices) / sizeof(double);
     m_refPrices.insert(m_refPrices.end(), &refPrices[0], &refPrices[refPricesSize]);
@@ -43,4 +43,6 @@ void Strategy::run() {
     }
 }
 
-
+double Strategy::getQty(double price) const {
+    return m_c->getQty(price);
+}

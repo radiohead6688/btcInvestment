@@ -10,6 +10,7 @@ public:
     ~Strategy();
 
     void run();
+    double getQty(double price) const;
 private:
     std::vector<double> m_refPrices;
 

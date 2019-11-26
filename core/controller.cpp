@@ -5,26 +5,6 @@
 using std::cout;
 using std::endl;
 
-struct Config {
-    double elecProp;
-    double entryPrice;
-    double quantity;
-    double durationInDays;
-
-    struct {
-        double tProp;
-    } trade;
-
-    struct {
-        double pProp;
-        PledgeType type;
-    } pledge;
-
-    struct {
-        double cProp;
-    } contract;
-};
-
 Controller::Controller(double elecProp, double entryPrice, double quantity, double tProp,
         double pProp, double cProp, PledgeType pType, unsigned short durationInDays,
         double tradeFee, double leverage, ContractSide cSide, double netRefiilTimesLimit)
@@ -50,12 +30,10 @@ Controller::~Controller() {
     delete m_contract;
 }
 
-double Controller::getQty(double price) const {
-    return m_balance
-           + m_usdtBalance/ price
-           + m_pledgeQty * m_pledge->getROEPct(m_entryPrice, price, m_pledgeQty, m_initPledgeQty,
-                   m_pledgePast)
-           + m_contractQty * m_contract->getROEPct(m_entryPrice, price);
+// Trade interface
+void Controller::initTrade(double tProp, double tradeFee) {
+    m_trade = new Trade(tradeFee);
+    sell(m_initQty * tProp, m_entryPrice);
 }
 
 void Controller::sell(double targetQty, double price) {
@@ -99,11 +77,7 @@ void Controller::purchase(double targetQty, double price) {
          << " using " << quantity * price << " usdt." << endl;
 }
 
-void Controller::initTrade(double tProp, double tradeFee) {
-    m_trade = new Trade(tradeFee);
-    sell(m_initQty * tProp, m_entryPrice);
-}
-
+// Pledge interface
 void Controller::initPledge(double pProp, PledgeType pType) {
     switch (pType) {
         case PledgeType::BabelPledgeType:
@@ -126,34 +100,66 @@ void Controller::initPledge(double pProp, PledgeType pType) {
         exit(-1);
     }
     m_balance -= pledgeQty;
-    m_pledgeQty += pledgeQty;
+    m_pledgeQty = pledgeQty;
     m_initPledgeQty = m_pledgeQty;
     m_usdtBalance += m_pledge->getInitCollaLevel() * m_pledgeQty * m_entryPrice;
 }
 
-void Controller::initContract(double cProp, double leverage, ContractSide cSide) {
-    m_contract = new Contract(leverage, cSide);
-    double contractQty = cProp * m_initQty;
-    if (contractQty > m_balance) {
-        cout << "Failed to initiate contract. Insufficient balance" << endl
-             << "Need: " << contractQty << endl
-             << "Balance: " << m_balance << endl;
-        exit(-1);
-    }
-    m_balance -= contractQty;
-    m_contractQty += contractQty;
+double Controller::getRefillPriceRatio() const {
+    return m_pledge->getRefillPriceRatio(m_refilledTimes - m_refundedTimes);
 }
 
-void Controller::payElecFee() {
-    double elecFee = m_elecQty * m_entryPrice;
-    if (elecFee > m_usdtBalance) {
-        cout << "Failed to pay electricity fee. Insufficient usdt balance" << endl
-             << "Need: " << elecFee << endl
-             << "USDT Balance: " << m_usdtBalance << endl;
-        exit(-1);
+double Controller::getLiqPriceRatio() const {
+    return m_pledge->getLiqPriceRatio(m_refilledTimes - m_refundedTimes);
+}
+
+double Controller::getPledgeQty(double price) {
+    if (m_pledge == 0) {
+        return 0;
     }
-    m_usdtBalance -= elecFee;
-    cout << "Paid electricity fee of " << elecFee << " usdt" << endl;
+
+    double priceRatio = price / m_entryPrice;
+    if (priceRatio <= getRefillPriceRatio() &&
+            m_refilledTimes - m_refundedTimes < m_netRefillTimesLimit) {
+        refillPledge();
+    }
+
+    if (priceRatio <= getLiqPriceRatio()) {
+        m_pledge = 0;
+        m_pledgeLiquidated = true;
+        cout << "Pledge liquidated :(" << endl;
+        return 0;
+    }
+
+    return m_pledge->getROEPct(m_entryPrice, price, m_pledgeQty, m_initPledgeQty, m_pledgePast,
+            m_refilledTimes - m_refundedTimes);
+}
+
+void Controller::refillPledge() {
+    if (m_refilledTimes - m_refundedTimes > m_netRefillTimesLimit) {
+        cout << "Unable to refill. Reached net refill times limit: "
+             << m_netRefillTimesLimit << endl;
+        return;
+    }
+
+    double refillQty = m_initPledgeQty *
+        m_pledge->getRefillRatio(m_refilledTimes - m_refundedTimes);
+
+    increasePledge(refillQty);
+    m_refilledTimes += 1;
+    cout << "Refilled pledge with " << refillQty << " btc." << endl;
+}
+
+void Controller::endPledge(double price) {
+    if (m_pledgeQty == 0) {
+        return;
+    }
+
+    double quantity = m_pledgeQty * m_pledge->getROEPct(m_entryPrice, price, m_pledgePast,
+            m_pledgeQty, m_initPledgeQty, m_refilledTimes - m_refundedTimes);
+    m_pledgeQty = 0;
+    m_balance += quantity;
+    cout << "Ended pledge. Get " << quantity << " btc back." << endl;
 }
 
 void Controller::increasePledge(double quantity) {
@@ -167,32 +173,36 @@ void Controller::increasePledge(double quantity) {
     m_pledgeQty += quantity;
 }
 
-void Controller::refillPledge() {
-    if (m_refilledTimes - m_refundedTimes > m_netRefillTimesLimit) {
-        cout << "Already refilled " << m_refilledTimes - m_refundedTimes << " times." << endl;
-        return;
+// Contract interface
+void Controller::initContract(double cProp, double leverage, ContractSide cSide) {
+    m_contract = new Contract(leverage, cSide);
+    double contractQty = cProp * m_initQty;
+    if (contractQty > m_balance) {
+        cout << "Failed to initiate contract. Insufficient balance" << endl
+             << "Need: " << contractQty << endl
+             << "Balance: " << m_balance << endl;
+        exit(-1);
     }
-    double refillQty = m_initPledgeQty *
-        m_pledge->getRefillRatio(m_refilledTimes - m_refundedTimes);
-    increasePledge(refillQty);
-    m_refilledTimes += 1;
-    cout << "Refilled pledge with " << refillQty << " btc." << endl;
+    m_balance -= contractQty;
+    m_contractQty = contractQty;
 }
 
-void Controller::endPledge(double price) {
-    if (m_pledgeQty == 0) {
-        return;
-    }
-
-    double quantity = m_pledgeQty *
-        m_pledge->getROEPct(m_entryPrice, price, m_pledgePast, m_pledgeQty, m_initPledgeQty);
-    m_pledgeQty = 0;
-    m_balance += quantity;
-    cout << "Ended pledge. Get " << quantity << " btc back." << endl;
+double Controller::getQty(double price) {
+    return m_balance
+           + m_usdtBalance / price
+           + m_pledgeQty * getPledgeQty(price)
+           + m_contractQty * m_contract->getROEPct(m_entryPrice, price);
 }
 
-void Controller::pledgeLiquidated() {
-    m_pledge = 0;
-    cout << "Pledge liquidated :(" << endl;
+void Controller::payElecFee() {
+    double elecFee = m_elecQty * m_entryPrice;
+    if (elecFee > m_usdtBalance) {
+        cout << "Failed to pay electricity fee. Insufficient usdt balance" << endl
+             << "Need: " << elecFee << endl
+             << "USDT Balance: " << m_usdtBalance << endl;
+        exit(-1);
+    }
+    m_usdtBalance -= elecFee;
+    cout << "Paid electricity fee of " << elecFee << " usdt" << endl;
 }
 

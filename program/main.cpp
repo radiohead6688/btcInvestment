@@ -40,33 +40,17 @@ std::map<double,double> revenue(std::vector<double> &btcPrices) {
     return ret;
 }
 
+/*
+ * colla + sell + remain = productivity;
+ * colla * initCollaLevel + sell = productivity * elecProp;
+ * remain = colla * remainCollaRatio;
+ */
 void calculateStrategy() {
-    //double elecProp;
-    //double productivity;
-    //double initCollaLevel;
-    //double remainCollaRatio;
-    //cout << "Enter electricity fee proportion ";
-    //cin >> elecProp;
-    //cout << "Enter productivity: ";
-    //cin >> productivity;
-    //cout << "Enter initial collateral Level: ";
-    //cin >> initCollaLevel;
-    //cout << "Enter the ration of remaining and collateral: ";
-    //cin >> remainCollaRatio;
-
-    //cout << elecProp << " " << productivity << " " << initCollaLevel
-         //<< " " << remainCollaRatio << endl;
-
     double const elecProp = 0.78;
     double const productivity = 130;
     double const initCollaLevel = 0.6;
     double const remainCollaRatio = 0.25;
     double colla, sell, remain;
-    /*
-     * colla + sell + remain = productivity;
-     * colla * initCollaLevel + sell = productivity * elecProp;
-     * remain = colla * remainCollaRatio;
-     */
 
     colla = (1 - elecProp) * productivity / (1 + remainCollaRatio - initCollaLevel);
     remain = colla * remainCollaRatio;
@@ -75,12 +59,28 @@ void calculateStrategy() {
     cout << "Collateral: " << colla << "\nSell: " << sell << "\nRemaining: " << remain << endl;
 }
 
+void testStrategy() {
+    double refPrices[] = {4000, 4556, 5400, 6075, 7500, 8100, 9135, 10000, 12000, 14000,
+                          18000, 20000, 22400, 24000, 26000, 30000, 50000, 80000};
+
+    cout << "Price\t\tQuantity" << endl;
+
+    for (auto &i : refPrices) {
+        Strategy* s = new Strategy();
+        double quantity = s->getQty(i);
+        cout << i << "\t\t" << quantity << endl << endl;
+        delete s;
+    }
+}
+
 int main()
 {
     //calculateStrategy();
-    //testStrategy();
-    Strategy s;
-    s.run();
+
+    testStrategy();
+
+    //Strategy s;
+    //s.run();
 
 
     return 0;
