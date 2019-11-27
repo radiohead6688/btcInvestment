@@ -42,15 +42,15 @@ std::map<double,double> revenue(std::vector<double> &btcPrices) {
 
 /*
  * collaQty + tradeQty + refillQty = quantity;
- * collaQty * initCollaLevel + (1 - tradeFeeRate) * sell = quantity * elecProp;
- * spareQty = collaQty * refillCollaRatio;
+ * collaQty * initCollaLevel + (1 - tradeFeeRate) * tradeQty = quantity * elecProp;
+ * refillQty = collaQty * refillCollaRatio;
  */
 void calculateStrategy(double elecFeeUsdt) {
     double elecProp = 0.78;
     double entryPrice = 6900.0;
     double elecQty = elecFeeUsdt / entryPrice;
     double quantity = elecQty / elecProp;
-    double refillCollaRatio = 0.33333333;
+    double refillCollaRatio = 1.0 / 3.0;
     double initCollaLevel = 0.6;
     double tradeFeeRate = 0.007;
 
@@ -61,8 +61,7 @@ void calculateStrategy(double elecFeeUsdt) {
 
     double tProp = tradeQty / quantity;
     double pProp = collaQty / quantity;
-    double rrop = refillQty / quantity;
-    double cProp = 0.0;
+    double rProp = refillQty / quantity;
 
     double usdtLoanAmnt = collaQty * initCollaLevel * entryPrice;
     double tradeAmnt = tradeQty * (1 - tradeFeeRate) * entryPrice;
@@ -80,10 +79,32 @@ void calculateStrategy(double elecFeeUsdt) {
          << "refillQty: " << refillQty << endl
          << "pProp: " << pProp << endl
          << "tProp: " << tProp << endl
-         << "loan: " << collaQty * initCollaLevel << endl
+         << "rProp: " << rProp << endl
          << "usdtLoanAmnt: " << usdtLoanAmnt << endl
          << "tradeAmnt: " << tradeAmnt << endl
          << "totalAmnt: " << usdtLoanAmnt + tradeAmnt << endl;
+}
+
+void calculateCollateral(double elecFeeUsdt) {
+    double entryPrice = 6900.0;
+    double elecQty = elecFeeUsdt / entryPrice;
+    double refillCollaRatio = 1.0 / 3.0;
+    double initCollaLevel = 0.6;
+
+    double collaQty = elecQty / initCollaLevel;;
+    double refillQty = collaQty * refillCollaRatio;
+
+    double quantity = collaQty + refillQty;
+
+    cout.precision(4);
+    cout << std::fixed
+         << "entryPrice: " << entryPrice << endl
+         << "elecQty: " << elecQty << endl
+         << "initCollaLevel: " <<  initCollaLevel << endl
+         << "refillCollaRatio: " << refillCollaRatio << endl
+         << "quantity: " << quantity << endl
+         << "collaQty: " << collaQty << endl
+         << "refillQty: " << refillQty << endl;
 }
 
 void testStrategy() {
@@ -126,7 +147,8 @@ void testStrategy() {
 
 int main()
 {
-    calculateStrategy(150000);
+    //calculateStrategy(150000);
+    calculateCollateral(150000);
 
     //testStrategy();
 
