@@ -16,9 +16,9 @@ void writeCSV(string str) {
     std::ofstream oFile;
 
     oFile.open("scoresheet.csv", std::ios::out | std::ios::trunc);
-    oFile << "姓名" << "," << "年龄" << "," << "班级" << "," << "班主任" << endl;
-    oFile << "张三" << "," << "22" << "," << "1" << "," << "JIM" << endl;
-    oFile << "李四" << "," << "23" << "," << "3" << "," << "TOM" << endl;
+    //oFile << "姓名" << "," << "年龄" << "," << "班级" << "," << "班主任" << endl;
+    //oFile << "张三" << "," << "22" << "," << "1" << "," << "JIM" << endl;
+    //oFile << "李四" << "," << "23" << "," << "3" << "," << "TOM" << endl;
 
     oFile.close();
 }
@@ -41,22 +41,49 @@ std::map<double,double> revenue(std::vector<double> &btcPrices) {
 }
 
 /*
- * colla + sell + remain = productivity;
- * colla * initCollaLevel + sell = productivity * elecProp;
- * remain = colla * remainCollaRatio;
+ * collaQty + tradeQty + refillQty = quantity;
+ * collaQty * initCollaLevel + (1 - tradeFeeRate) * sell = quantity * elecProp;
+ * spareQty = collaQty * refillCollaRatio;
  */
-void calculateStrategy() {
-    double const elecProp = 0.78;
-    double const productivity = 130;
-    double const initCollaLevel = 0.6;
-    double const remainCollaRatio = 0.25;
-    double colla, sell, remain;
+void calculateStrategy(double elecFeeUsdt) {
+    double elecProp = 0.78;
+    double entryPrice = 6900.0;
+    double elecQty = elecFeeUsdt / entryPrice;
+    double quantity = elecQty / elecProp;
+    double refillCollaRatio = 0.33333333;
+    double initCollaLevel = 0.6;
+    double tradeFeeRate = 0.007;
 
-    colla = (1 - elecProp) * productivity / (1 + remainCollaRatio - initCollaLevel);
-    remain = colla * remainCollaRatio;
-    sell = productivity - colla - remain;
+    double collaQty = ((1.0 - tradeFeeRate) - elecProp) * quantity /
+            ((1.0 + refillCollaRatio) * (1.0 - tradeFeeRate)  - initCollaLevel);
+    double refillQty = collaQty * refillCollaRatio;
+    double tradeQty = quantity - collaQty - refillQty;
 
-    cout << "Collateral: " << colla << "\nSell: " << sell << "\nRemaining: " << remain << endl;
+    double tProp = tradeQty / quantity;
+    double pProp = collaQty / quantity;
+    double rrop = refillQty / quantity;
+    double cProp = 0.0;
+
+    double usdtLoanAmnt = collaQty * initCollaLevel * entryPrice;
+    double tradeAmnt = tradeQty * (1 - tradeFeeRate) * entryPrice;
+
+    cout.precision(4);
+    cout << std::fixed
+         << "entryPrice: " << entryPrice << endl
+         << "elecProp: " << elecProp << endl
+         << "elecQty: " << elecQty << endl
+         << "quantity: " << quantity << endl
+         << "initCollaLevel: " <<  initCollaLevel << endl
+         << "refillCollaRatio: " << refillCollaRatio << endl
+         << "collaQty: " << collaQty << endl
+         << "tradeQty: " << tradeQty << endl
+         << "refillQty: " << refillQty << endl
+         << "pProp: " << pProp << endl
+         << "tProp: " << tProp << endl
+         << "loan: " << collaQty * initCollaLevel << endl
+         << "usdtLoanAmnt: " << usdtLoanAmnt << endl
+         << "tradeAmnt: " << tradeAmnt << endl
+         << "totalAmnt: " << usdtLoanAmnt + tradeAmnt << endl;
 }
 
 void testStrategy() {
@@ -66,22 +93,50 @@ void testStrategy() {
     cout << "Price\t\tQuantity" << endl;
 
     for (auto &i : refPrices) {
-        Strategy* s = new Strategy();
+        Facts facts(7050, 1500000);
+        Config config(facts);
+        Strategy* s = new Strategy(facts, config);
         double quantity = s->getQty(i);
         cout << i << "\t\t" << quantity << endl << endl;
         delete s;
     }
 }
 
+//void getBtcQty(double price) {
+    //double elecProp = 0.78;
+    //double elecFeeCNY = 1000000;
+    //double usdtRate = 7.0;
+    //double elecQty = (elecFeeCNY / usdtRate) / price;
+    //double quantity = elecQty / elecProp;
+    //double initCollaLevel = 0.6;
+    //double remainCollaRatio = 0.3333;
+    //cout << "elecProp: " << elecProp << endl
+         //<< "elecFeeCNY: " << elecFeeCNY << endl
+         //<< "usdtRate: " << usdtRate << endl
+         //<< "elecQty: " << elecQty << endl
+         //<< "quantity: " << quantity << endl
+         //<< endl;
+
+    //Facts facts;
+    //Config config(facts);
+
+    ////Strategy s(fact, config);
+    ////s.run();
+//}
+
 int main()
 {
-    //calculateStrategy();
+    calculateStrategy(150000);
 
-    testStrategy();
+    //testStrategy();
 
-    //Strategy s;
+    //Facts facts(7150);
+    //Config config(facts);
+
+    //Facts facts(7150, 1000000);
+    //Config config(facts);
+    //Strategy* s = new Strategy(facts, config);
     //s.run();
-
 
     return 0;
 }
