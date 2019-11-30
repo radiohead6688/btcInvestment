@@ -3,22 +3,35 @@
 #include <stdint.h>
 
 enum class ContractSide: uint16_t {
-    BuyLongType                 = 0x01,
-    SellShortType               = 0x02,
+    BuyLong                     = 0x01,
+    SellShort                   = 0x02,
 
-    UnknownType                 = 0xFFFF
+    UnknownSide                 = 0xFFFF
+};
+
+enum class ContractPlatform: uint16_t {
+    BitmexContract                      = 0x01,
+    /* Add new platform*/
+
+    UnknownPlatform             = 0xFFFF
 };
 
 class Contract {
-public:
+protected:
     Contract(double leverage, ContractSide side);
 
-    double getROEPct(double entryPrice, double price) const;
-    double getLiqPriceRatio() const {return m_liqPriceRatio;}
-
-private:
     const double m_leverage;
     const ContractSide m_side;
 
     double m_liqPriceRatio;
+
+public:
+    ~Contract() {}
+    double getROEPct(double entryPrice, double price) const;
+    double getLiqPriceRatio() const {return m_liqPriceRatio;}
+};
+
+class BitmexContract : public Contract {
+public:
+    BitmexContract(double leverage, ContractSide side) : Contract(leverage, side) {}
 };

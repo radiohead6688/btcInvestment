@@ -9,10 +9,10 @@ using std::endl;
 Contract::Contract(double leverage, ContractSide side) : m_leverage(leverage), m_side(side) {
     assert(m_leverage > 0);
     switch (side) {
-        case ContractSide::BuyLongType:
+        case ContractSide::BuyLong:
             m_liqPriceRatio = m_leverage / (1 + m_leverage);
             break;
-        case ContractSide::SellShortType:
+        case ContractSide::SellShort:
             if (m_leverage <= 1.0){
                 m_liqPriceRatio = 0xFFFFFFFF;   //figure out bitmex mechanism
             } else {
@@ -28,7 +28,7 @@ double Contract::getROEPct(double entryPrice, double price) const {
     double liqPrice = entryPrice * m_liqPriceRatio;
 
     switch (m_side) {
-        case ContractSide::BuyLongType:
+        case ContractSide::BuyLong:
             if (price <= liqPrice) {
                 cout << "Price is lower than liquidation price. Rekt :(" << endl;
                 return 0.0;
@@ -36,7 +36,7 @@ double Contract::getROEPct(double entryPrice, double price) const {
                 return 1 + (1 - entryPrice / price) * m_leverage;
             }
             break;
-        case ContractSide::SellShortType:
+        case ContractSide::SellShort:
             if (price >= liqPrice) {
                 cout << "Price is higher than liquidation price. Rekt :(" << endl;
                 return 0.0;
@@ -44,7 +44,7 @@ double Contract::getROEPct(double entryPrice, double price) const {
                 return 1 + (entryPrice / price - 1) * m_leverage;
             }
             break;
-        case ContractSide::UnknownType:
+        case ContractSide::UnknownSide:
             std::cout << "Invalid contract side!\n";
             exit(-1);
     }

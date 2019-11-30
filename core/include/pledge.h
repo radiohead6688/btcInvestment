@@ -2,13 +2,13 @@
 
 #include <stdint.h>
 
-enum class PledgeType: uint16_t {
-    BabelPledgeType               = 0x01,
-    GateioPledgeType              = 0x02,
-    MatrixportPledgeType          = 0x03,
-    /* Add new type */
+enum class PledgePlatform: uint16_t {
+    BabelPledge                   = 0x01,
+    GateioPledge                  = 0x02,
+    MatrixportPledge              = 0x03,
+    /* Add new platform*/
 
-    UnknownType = 0xFFFF,
+    UnknownPlatform = 0xFFFF,
 };
 
 class Pledge {
@@ -30,10 +30,13 @@ protected:
 public:
     virtual ~Pledge() {}
     virtual double getRefillPriceRatio(unsigned short netRefilledTimes) const = 0;
+    virtual double getRefillCollaRatio(unsigned short netRefiilTimes) = 0;
     virtual double getLiqPriceRatio(unsigned short netRefilledTimes) const = 0;
-    virtual double getRefillRatio(unsigned short netRefiilTimes) = 0;
 
-    double getInitCollaLevel() {return m_initCollaLevel;}
+    double getInitCollaLevel() const {return m_initCollaLevel;}
+    double getDailyInterestsRate() const {return m_dailyInterests;}
+    double getRefillLevel() const {return m_refillLevel;}
+    double getLiqLevel() const {return m_liqLevel;}
     double getROEPct(double entryPrice, double price, double currQty, double initQty,
             unsigned short duration, unsigned short netRefilledTimes) const;
 };
@@ -53,7 +56,7 @@ public:
 
     double getRefillPriceRatio(unsigned short netRefilledTimes) const override;
     double getLiqPriceRatio(unsigned short netRefilledTimes) const override;
-    double getRefillRatio(unsigned short netRefiilTimes) override;
+    double getRefillCollaRatio(unsigned short netRefiilTimes) override;
 
     double refund(unsigned short netRefilledTimes);
 
@@ -77,5 +80,5 @@ public:
 
     double getRefillPriceRatio(unsigned short netRefilledTimes) const override {return 0;}
     double getLiqPriceRatio(unsigned short netRefilledTimes) const override {return 0;}
-    double getRefillRatio(unsigned short netRefiilTimes) override {return 0;}
+    double getRefillCollaRatio(unsigned short netRefiilTimes) override {return 0;}
 };

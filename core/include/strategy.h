@@ -39,12 +39,12 @@ struct Facts {
     double initCollaLevel = 0.6;
     double remainCollaRatio = 0.3333;
 
-    PledgeType pledgeType = PledgeType::BabelPledgeType;
+    PledgePlatform pledgePlatform = PledgePlatform::BabelPledge;
     double durationInDays = 90;
     double tradeFee = 0;
     double leverage = 1;
-    unsigned short netRefiilTimesLimit = 1;
-    ContractSide contractSide = ContractSide::SellShortType;
+    unsigned short netRefillTimesLimit = 1;
+    ContractSide contractSide = ContractSide::SellShort;
 };
 
 struct Config {

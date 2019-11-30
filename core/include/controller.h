@@ -7,8 +7,8 @@
 class Controller {
 public:
     Controller(double elecProp, double entryPrice, double quantity, double tProp, double pProp,
-            double cProp, PledgeType pType, unsigned short days, double tradeFee, double leverage,
-            ContractSide contractSide, double netRefiilTimesLimit);
+            double cProp, PledgePlatform pPlatform, unsigned short days, double tradeFee, double leverage,
+            ContractSide contractSide, double netRefillTimesLimit);
 
     ~Controller();
 
@@ -18,7 +18,7 @@ public:
     void purchase(double quantity, double price);
 
     /* Pledge interface */
-    void initPledge(double pProp, PledgeType pType);
+    void initPledge(double pProp, PledgePlatform pPlatform);
     double getPledgeQty(double price);
     double getRefillPriceRatio() const;
     double getLiqPriceRatio() const;

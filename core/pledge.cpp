@@ -71,7 +71,7 @@ double BabelPledge::getRefillPriceRatio(unsigned short netRefilledTimes) const {
                 ret = m_refillPriceRatio2;
                 break;
             default:
-                cout << "Refilled too many times. Check strategy." << endl;
+                cout << "Invalid refill times. Check strategy." << endl;
                 throw;
                 break;
         }
@@ -96,7 +96,7 @@ double BabelPledge::getLiqPriceRatio(unsigned short netRefilledTimes) const {
                 liqPriceRatio = m_liqPriceRatio2;
                 break;
             default:
-                cout << "Refilled too many times. Check strategy." << endl;
+                cout << "Invalid refill times. Check strategy." << endl;
                 throw;
                 break;
         }
@@ -107,7 +107,7 @@ double BabelPledge::getLiqPriceRatio(unsigned short netRefilledTimes) const {
     return liqPriceRatio;
 }
 
-double BabelPledge::getRefillRatio(unsigned short netRefilledTimes) {
+double BabelPledge::getRefillCollaRatio(unsigned short netRefilledTimes) {
     double refillCollaRatio;
     try {
         switch (netRefilledTimes) {
@@ -144,7 +144,7 @@ double BabelPledge::refund(unsigned short netRefilledTimes) {
                 refundCollaRatio = m_refillCollaRatio2 - m_refillCollaRatio1;
                 break;
             default:
-                cout << "Refilled more than twice. Check strategy." << endl;
+                cout << "Invalid refill times. Check strategy." << endl;
                 throw;
                 break;
         }

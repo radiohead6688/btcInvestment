@@ -6,14 +6,14 @@ using std::cout;
 using std::endl;
 
 Controller::Controller(double elecProp, double entryPrice, double quantity, double tProp,
-        double pProp, double cProp, PledgeType pType, unsigned short durationInDays,
-        double tradeFee, double leverage, ContractSide cSide, double netRefiilTimesLimit)
+        double pProp, double cProp, PledgePlatform pPlatform, unsigned short durationInDays,
+        double tradeFee, double leverage, ContractSide cSide, double netRefillTimesLimit)
         : m_elecProp(elecProp), m_entryPrice(entryPrice), m_initQty(quantity),
         m_pledgeDuration(durationInDays), m_balance(quantity), m_elecQty(elecProp * quantity),
-        m_netRefillTimesLimit(netRefiilTimesLimit)
+        m_netRefillTimesLimit(netRefillTimesLimit)
 {
     initTrade(tProp, tradeFee);
-    initPledge(pProp, pType);
+    initPledge(pProp, pPlatform);
     initContract(cProp, leverage, cSide);
 
     payElecFee();
@@ -32,7 +32,15 @@ Controller::~Controller() {
 
 // Trade interface
 void Controller::initTrade(double tProp, double tradeFee) {
-    m_trade = new Trade(tradeFee);
+    TradePlatform tPlatform = TradePlatform::OfflineTrade;
+    switch (tPlatform) {
+        case TradePlatform::OfflineTrade:
+            m_trade = new OfflineTrade();
+            break;
+        default:
+            break;
+    }
+
     sell(m_initQty * tProp, m_entryPrice);
 }
 
@@ -78,15 +86,15 @@ void Controller::purchase(double targetQty, double price) {
 }
 
 // Pledge interface
-void Controller::initPledge(double pProp, PledgeType pType) {
-    switch (pType) {
-        case PledgeType::BabelPledgeType:
+void Controller::initPledge(double pProp, PledgePlatform pPlatform) {
+    switch (pPlatform) {
+        case PledgePlatform::BabelPledge:
             m_pledge = new BabelPledge();
             break;
-        case PledgeType::GateioPledgeType:
+        case PledgePlatform::GateioPledge:
             m_pledge = new GateioPledge();
             break;
-        case PledgeType::MatrixportPledgeType:
+        case PledgePlatform::MatrixportPledge:
             break;
         default:
             break;
@@ -143,7 +151,7 @@ void Controller::refillPledge() {
     }
 
     double refillQty = m_initPledgeQty *
-        m_pledge->getRefillRatio(m_refilledTimes - m_refundedTimes);
+        m_pledge->getRefillCollaRatio(m_refilledTimes - m_refundedTimes);
 
     increasePledge(refillQty);
     m_refilledTimes += 1;
@@ -174,8 +182,16 @@ void Controller::increasePledge(double quantity) {
 }
 
 // Contract interface
-void Controller::initContract(double cProp, double leverage, ContractSide cSide) {
-    m_contract = new Contract(leverage, cSide);
+void Controller::initContract(double cProp, double leverage, ContractSide side) {
+    ContractPlatform cPlatform = ContractPlatform::BitmexContract;
+    switch (cPlatform) {
+        case ContractPlatform::BitmexContract:
+            m_contract = new BitmexContract(leverage, side);
+            break;
+        default:
+            break;
+    }
+
     double contractQty = cProp * m_initQty;
     if (contractQty > m_balance) {
         cout << "Failed to initiate contract. Insufficient balance" << endl

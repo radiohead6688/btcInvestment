@@ -1,44 +1,13 @@
 #include <iostream>
-#include <fstream>
-#include <string>
-#include <streambuf>
-#include <map>
-#include <vector>
 
 #include "strategy.h"
+#include "trade.h"
+#include "pledge.h"
+#include "contract.h"
+#include "log.h"
 
-using std::cin;
 using std::cout;
 using std::endl;
-using std::string;
-
-void writeCSV(string str) {
-    std::ofstream oFile;
-
-    oFile.open("scoresheet.csv", std::ios::out | std::ios::trunc);
-    //oFile << "姓名" << "," << "年龄" << "," << "班级" << "," << "班主任" << endl;
-    //oFile << "张三" << "," << "22" << "," << "1" << "," << "JIM" << endl;
-    //oFile << "李四" << "," << "23" << "," << "3" << "," << "TOM" << endl;
-
-    oFile.close();
-}
-
-string readCSV(string file) {
-    std::ifstream iFile(file);
-    string readStr((std::istreambuf_iterator<char>(iFile)),  std::istreambuf_iterator<char>());
-    cout << readStr.c_str();
-    iFile.close();
-    return readStr;
-}
-
-std::map<double,double> revenue(std::vector<double> &btcPrices) {
-    std::map<double,double> ret;
-    for (auto i = btcPrices.begin(); i != btcPrices.end(); ++i) {
-        //double r = 
-        //revenue.insert(i,
-    }
-    return ret;
-}
 
 /*
  * collaQty + tradeQty + refillQty = quantity;
@@ -85,11 +54,46 @@ void calculateStrategy(double elecFeeUsdt) {
          << "totalAmnt: " << usdtLoanAmnt + tradeAmnt << endl;
 }
 
-void calculateCollateral(double elecFeeUsdt) {
-    double entryPrice = 6900.0;
+struct Configs {
+    struct {
+        Trade* ptr = nullptr;
+        double quantity = 0;
+    } trade;
+
+    struct {
+        Pledge* ptr = nullptr;
+        double quantity = 0;
+        unsigned short duration = 0;
+        unsigned short netRefillTimesLimits = 0;
+    } pledge;
+
+    struct {
+        Contract* ptr = nullptr;
+        double quantity = 0;
+    } contract;
+
+    double usdtLoanAmnt = 0;
+    double entryPrice = 0;
+    double elecProp = 0;
+    double elecFee = 0;
+};
+
+void loanAmntEqualsElecFee(double elecFeeUsdt, double entryPrice, unsigned short duration,
+        unsigned short netRefillTimesLimit) {
+    Trade* trade = new OfflineTrade();
+    Pledge* pledge = new BabelPledge();
+    Contract* contract = new BitmexContract(1.0, ContractSide::SellShort);
+
+    Configs configs;
+
     double elecQty = elecFeeUsdt / entryPrice;
-    double refillCollaRatio = 1.0 / 3.0;
-    double initCollaLevel = 0.6;
+    double initCollaLevel = pledge->getInitCollaLevel();
+    double refillLevel = pledge->getRefillLevel();
+    double refillPriceRatio = pledge->getRefillPriceRatio(netRefillTimesLimit);
+    double refillCollaRatio = pledge->getRefillCollaRatio(netRefillTimesLimit);
+    double liqLevel = pledge->getLiqLevel();
+    double liqPriceRatio = pledge->getLiqPriceRatio(netRefillTimesLimit);
+    double dailyInterestsRate = pledge->getDailyInterestsRate();
 
     double collaQty = elecQty / initCollaLevel;;
     double refillQty = collaQty * refillCollaRatio;
@@ -97,14 +101,76 @@ void calculateCollateral(double elecFeeUsdt) {
     double quantity = collaQty + refillQty;
 
     cout.precision(4);
+    //cout << std::fixed
+         //<< "entryPrice: " << entryPrice << endl
+         //<< "elecQty: " << elecQty << endl
+         //<< "initCollaLevel: " <<  initCollaLevel << endl
+         //<< "refillCollaRatio: " << refillCollaRatio << endl
+         //<< "quantity: " << quantity << endl
+         //<< "collaQty: " << collaQty << endl
+         //<< "refillQty: " << refillQty << endl;
+
     cout << std::fixed
-         << "entryPrice: " << entryPrice << endl
-         << "elecQty: " << elecQty << endl
-         << "initCollaLevel: " <<  initCollaLevel << endl
-         << "refillCollaRatio: " << refillCollaRatio << endl
-         << "quantity: " << quantity << endl
-         << "collaQty: " << collaQty << endl
-         << "refillQty: " << refillQty << endl;
+         << "贷款总额：" << elecFeeUsdt << " usdt" << endl
+         << "质押物：" << collaQty << " btc" << endl
+         << "储备质押物：" << refillQty << " btc" << endl
+         << "质押物总计：" << quantity << " btc" << endl
+         << "质押币价：" << entryPrice << " usdt" << endl
+         << "质押平台：" << "贝宝 (初始质押率 " << initCollaLevel << "，预警质押率 "
+                << refillLevel << "，平仓质押率 " << liqLevel << endl
+         << "质押周期：" << duration << " 天" << endl
+         << "年化利息：" << "8.88%" << endl
+         << "质押 " << collaQty << " btc，获得贷款 " << elecFeeUsdt << " usdt。" << endl
+         << "储备 " << refillQty << " btc，以备价格下跌至 " << refillPriceRatio * entryPrice
+                << " usdt时进行补仓。" << endl
+         << "补仓后若币价持续下跌至 " << liqPriceRatio * entryPrice
+                << " usdt将被强制平仓。" << endl
+         << "质押期满后取回扣除贷款和利息所剩的质押btc。" << endl
+         << "未来价值 = " << quantity << " * p' - " << elecFeeUsdt << " * (1 + "
+                << duration * dailyInterestsRate << ")" << endl;
+}
+
+void getCollaWithFixedLoan(double elecFeeUsdt, double entryPrice, double refillCollaRatio,
+        unsigned short duration) {
+    double elecQty = elecFeeUsdt / entryPrice;
+    double initCollaLevel = 0.6;
+    double refillPriceRatio = 0.75;
+    double liqPriceRatio = 0.5;
+    double annulizedInterestsRate = 0.0888;
+    double dailyInterestsRate = annulizedInterestsRate / 365;
+
+    double collaQty = elecQty / initCollaLevel;;
+    double refillQty = collaQty * refillCollaRatio;
+
+    double quantity = collaQty + refillQty;
+
+    cout.precision(4);
+    //cout << std::fixed
+         //<< "entryPrice: " << entryPrice << endl
+         //<< "elecQty: " << elecQty << endl
+         //<< "initCollaLevel: " <<  initCollaLevel << endl
+         //<< "refillCollaRatio: " << refillCollaRatio << endl
+         //<< "quantity: " << quantity << endl
+         //<< "collaQty: " << collaQty << endl
+         //<< "refillQty: " << refillQty << endl;
+
+    cout << std::fixed
+         << "贷款总额：" << elecFeeUsdt << " usdt" << endl
+         << "质押物：" << collaQty << " btc" << endl
+         << "储备质押物：" << refillQty << " btc" << endl
+         << "质押物总计：" << quantity << " btc" << endl
+         << "质押币价：" << entryPrice << " usdt" << endl
+         //<< "质押平台：" << "贝宝 (初始质押率 " << initCollaLevel << "，预警质押率 " << 80%，平仓质押率90%)" << endl
+         << "质押周期：" << duration << " 天" << endl
+         << "年化利息：" << "8.88%" << endl
+         << "质押 " << collaQty << " btc，获得贷款 " << elecFeeUsdt << " usdt。" << endl
+         << "储备 " << refillQty << " btc，以备价格下跌至 " << refillPriceRatio * entryPrice
+                << " usdt时进行补仓。" << endl
+         << "补仓后若币价持续下跌至 " << liqPriceRatio * entryPrice
+                << " usdt将被强制平仓。" << endl
+         << "质押期满后取回扣除贷款和利息所剩的质押btc。" << endl
+         << "未来价值 = " << quantity << " * p' - " << elecFeeUsdt << " * (1 + "
+                << duration * dailyInterestsRate << ")" << endl;
 }
 
 void testStrategy() {
@@ -123,42 +189,17 @@ void testStrategy() {
     }
 }
 
-//void getBtcQty(double price) {
-    //double elecProp = 0.78;
-    //double elecFeeCNY = 1000000;
-    //double usdtRate = 7.0;
-    //double elecQty = (elecFeeCNY / usdtRate) / price;
-    //double quantity = elecQty / elecProp;
-    //double initCollaLevel = 0.6;
-    //double remainCollaRatio = 0.3333;
-    //cout << "elecProp: " << elecProp << endl
-         //<< "elecFeeCNY: " << elecFeeCNY << endl
-         //<< "usdtRate: " << usdtRate << endl
-         //<< "elecQty: " << elecQty << endl
-         //<< "quantity: " << quantity << endl
-         //<< endl;
-
-    //Facts facts;
-    //Config config(facts);
-
-    ////Strategy s(fact, config);
-    ////s.run();
-//}
-
 int main()
 {
     //calculateStrategy(150000);
-    calculateCollateral(150000);
+    loanAmntEqualsElecFee(150000, 7500, 90, 1);
+    //for (double i = 7000; i < 8000; i += 100) {
+        //getCollaWithFixedLoan(150000, i, 1.0/3.0, 90);
+        //getCollaWithFixedLoan(150000, i, 0.25, 90);
+        //cout << endl;
+    //}
 
     //testStrategy();
-
-    //Facts facts(7150);
-    //Config config(facts);
-
-    //Facts facts(7150, 1000000);
-    //Config config(facts);
-    //Strategy* s = new Strategy(facts, config);
-    //s.run();
 
     return 0;
 }
