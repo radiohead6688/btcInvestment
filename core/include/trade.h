@@ -1,10 +1,10 @@
 #pragma once
 
 enum class TradePlatform: uint16_t {
-    OfflineTrade                = 0x01,
+    OfflineTrade            = 0x01,
     /* Add new platform*/
 
-    UnknownPlatform             = 0xFFFF,
+    UnknownPlatform         = 0xFFFF,
 };
 
 class Trade {

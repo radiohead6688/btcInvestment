@@ -5,9 +5,6 @@
 
 #include "controller.h"
 
-using std::cout;
-using std::endl;
-
 struct Facts {
     Facts(double price, double elecFee) {
         entryPrice = price;
@@ -19,15 +16,15 @@ struct Facts {
     }
 
     void print() {
-        //cout << "entryPrice: " << entryPrice << endl
-             //<< "elecProp: " << elecProp << endl
-             //<< "elecFeeCNY: " << elecFeeCNY << endl
-             //<< "usdtRate: " << usdtRate << endl
-             //<< "elecQty: " << elecQty << endl
-             //<< "quantity: " << quantity << endl
-             //<< "initCollaLevel: " <<  initCollaLevel << endl
-             //<< "remainCollaRatio: " << remainCollaRatio << endl
-             //<< endl;
+        //std::cout << "entryPrice: " << entryPrice << std::endl
+             //<< "elecProp: " << elecProp << std::endl
+             //<< "elecFeeCNY: " << elecFeeCNY << std::endl
+             //<< "usdtRate: " << usdtRate << std::endl
+             //<< "elecQty: " << elecQty << std::endl
+             //<< "quantity: " << quantity << std::endl
+             //<< "initCollaLevel: " <<  initCollaLevel << std::endl
+             //<< "remainCollaRatio: " << remainCollaRatio << std::endl
+             //<< std::endl;
     }
 
     double entryPrice;
@@ -59,11 +56,11 @@ struct Config {
         pProp = pledgeQty / totalQty;
         cProp = contractQty / totalQty;
 
-        //cout << "pledgeQty: " << pledgeQty << endl
-             //<< "tradeQty: " << tradeQty << endl
-             //<< "balance: " << balance << endl
-             //<< "pProp: " << pProp << endl
-             //<< "tProp: " << tProp << endl;
+        //std::cout << "pledgeQty: " << pledgeQty << std::endl
+             //<< "tradeQty: " << tradeQty << std::endl
+             //<< "balance: " << balance << std::endl
+             //<< "pProp: " << pProp << std::endl
+             //<< "tProp: " << tProp << std::endl;
     }
     double totalQty = 0;
 

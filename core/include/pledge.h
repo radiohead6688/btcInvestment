@@ -3,9 +3,9 @@
 #include <stdint.h>
 
 enum class PledgePlatform: uint16_t {
-    BabelPledge                   = 0x01,
-    GateioPledge                  = 0x02,
-    MatrixportPledge              = 0x03,
+    BabelPledge                 = 0x01,
+    GateioPledge                = 0x02,
+    MatrixportPledge            = 0x03,
     /* Add new platform*/
 
     UnknownPlatform = 0xFFFF,

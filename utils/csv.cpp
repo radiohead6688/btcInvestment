@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+#include "csv.h"
+
 void writeCSV(std::string str) {
     std::ofstream oFile;
 

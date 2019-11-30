@@ -3,10 +3,10 @@
 #include <stdint.h>
 
 enum class ContractSide: uint16_t {
-    BuyLong                     = 0x01,
-    SellShort                   = 0x02,
+    BuyLong                 = 0x01,
+    SellShort               = 0x02,
 
-    UnknownSide                 = 0xFFFF
+    UnknownSide             = 0xFFFF
 };
 
 enum class ContractPlatform: uint16_t {
