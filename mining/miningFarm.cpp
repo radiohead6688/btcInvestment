@@ -1,15 +1,23 @@
 #include "miningFarm.h"
 
 #include <iostream>
+#include <functional>
+#include <algorithm>
+#include <map>
 
 MiningFarm::MiningFarm(Location location, std::map<MinerType, unsigned> minerNums,
         double powerLineLossRatio, double elecFeePerKwh,
-        std::vector<unsigned short> elecFeeCollectionDate)
+        std::vector<unsigned short> elecFeeDate)
         : m_location(location), m_minerNums(minerNums), m_powerLineLossRatio(powerLineLossRatio),
-          m_elecFeePerKwh(elecFeePerKwh), m_elecFeeCollectionDate(elecFeeCollectionDate) {
+          m_elecFeePerKwh(elecFeePerKwh), m_elecFeeDate(elecFeeDate) {
     for (auto const& i : m_minerNums) {
-        m_miners.insert({i.first, Miner(i.first)});
+        Miner miner = Miner(i.first);
+        m_miners.insert({i.first, miner});
+        m_totalHashrate += i.second * miner.getHashrate();
     }
+
+    std::sort(m_elecFeeDate.begin(), m_elecFeeDate.end(),
+            std::less<unsigned short>());
 }
 
 double MiningFarm::getElecFeeCNY(unsigned duration) const {

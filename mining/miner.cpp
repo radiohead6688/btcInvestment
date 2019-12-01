@@ -31,6 +31,10 @@ double Miner::getDailyIncomeCNY(double dailyIncomeCNYPerTHS) const {
     return m_hashrate * dailyIncomeCNYPerTHS;
 }
 
+double Miner::getDailyIncomeBTC(double dailyIncomeBTCPerTHS) const {
+    return m_hashrate * dailyIncomeBTCPerTHS;
+}
+
 double Miner::getElecProp(double elecFeePerKwh, double dailyIncomeCNYPerTHS,
         double powerLineLossRatio) const {
     double elecFeeCNY = getDailyElecFeeCNY(elecFeePerKwh, powerLineLossRatio);

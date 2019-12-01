@@ -22,8 +22,10 @@ class Miner {
 public:
     Miner(MinerType type);
 
+    double getHashrate() const {return m_hashrate;}
     double getDailyElecFeeCNY(double elecFeePerKwh, double powerLineLossRatio) const;
     double getDailyIncomeCNY(double dailyIncomeCNYPerTHS) const;
+    double getDailyIncomeBTC(double dailyIncomeBTCPerTHS) const;
     double getElecProp(double elecFeeCNY, double dailyIncomeCNY, double powerLineLossRatio) const;
 
 private:

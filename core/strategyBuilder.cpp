@@ -132,7 +132,7 @@ double getElecProp(double elecFeeCNY, double dailyIncomeCNY) {
     return elecFeeCNY / dailyIncomeCNY;
 }
 
-double calculateElecFeeCNY() {
+double calculateElecFeeCNY(double usdtCNYRate, double price) {
     MiningFarm yunNan = {Location::YunNan,
             std::map<MinerType, unsigned> {{MinerType::InnosiliconT2T_30T, 2150}},
             0.03,
@@ -166,9 +166,21 @@ double calculateElecFeeCNY() {
 
     MiningMgmt miningMgmt = {miningFarms};
 
+    double monthlyElecFeeCNY = miningMgmt.getElecFeeCNY(30);
     cout.precision(4);
     cout << std::fixed
-         << miningMgmt.getElecFeeCNY(30) << endl;
+         << "Monthly electricity fee: " << monthlyElecFeeCNY << " CNY, "
+         << monthlyElecFeeCNY / usdtCNYRate << " usdt, "
+         << monthlyElecFeeCNY / usdtCNYRate / price << " btc" << endl;
+
+    std::map<unsigned, double> elecFeeBrief = miningMgmt.getElecFeeBrief();
+    cout << "Electricity fee collection date:" << endl;
+    for (auto i : elecFeeBrief) {
+        cout << "\t" << i.first << ": " << i.second << " CNY, "
+             << i.second / usdtCNYRate << " usdt, "
+             << i.second / usdtCNYRate / price << " btc" << endl;
+    }
+
 
     return 0.0;
 }

@@ -46,4 +46,4 @@ double getDailyIncomeCNY(double hashrate, double dailyIncomeCNYPerTHS);
 
 double getElecProp(double elecFeeCNY, double dailyIncomeCNY);
 
-double calculateElecFeeCNY();
+double calculateElecFeeCNY(double usdtCNYRate, double price);
