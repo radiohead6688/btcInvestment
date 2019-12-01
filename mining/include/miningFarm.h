@@ -19,8 +19,13 @@ enum class Location : uint16_t {
 
 class MiningFarm {
 public:
-    MiningFarm(Location location, std::map<MinerType, unsigned> &minerNums, double powerLineLossRatio, double elecFeePerKwh, std::vector<unsigned short> elecFeeCollectionDate);
-    ~MiningFarm();
+    MiningFarm(Location location, std::map<MinerType, unsigned> minerNums,
+            double powerLineLossRatio, double elecFeePerKwh,
+            std::vector<unsigned short> elecFeeCollectionDate);
+
+    ~MiningFarm() {}
+
+    double getElecFeeCNY(unsigned duration) const;
 
 private:
     Location m_location;
@@ -28,5 +33,5 @@ private:
     double m_powerLineLossRatio;
     std::vector<unsigned short> m_elecFeeCollectionDate;
     std::map<MinerType, unsigned> m_minerNums;
-    std::map<MinerType, Miner*> m_miners;
+    std::map<MinerType, Miner> m_miners;
 };

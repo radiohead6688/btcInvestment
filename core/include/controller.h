@@ -35,12 +35,12 @@ private:
     void increasePledge(double quantity);
 
 private:
-    const double m_initQty;
-    const double m_elecProp;
-    const double m_elecQty;
-    const double m_entryPrice;
-    const unsigned short m_pledgeDuration;
-    const unsigned short m_netRefillTimesLimit;
+    double const m_initQty;
+    double const m_elecProp;
+    double const m_elecQty;
+    double const m_entryPrice;
+    unsigned short const m_pledgeDuration;
+    unsigned short const m_netRefillTimesLimit;
 
     Trade* m_trade = nullptr;
     Contract* m_contract = nullptr;

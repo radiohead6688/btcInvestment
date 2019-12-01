@@ -15,10 +15,10 @@ class Pledge {
 protected:
     Pledge(double icl, double mrfil, double ll, double air);
 
-    const double m_initCollaLevel;
-    const double m_refillLevel;
-    const double m_liqLevel;
-    const double m_annualizedInterestsRate;
+    double const m_initCollaLevel;
+    double const m_refillLevel;
+    double const m_liqLevel;
+    double const m_annualizedInterestsRate;
     double m_dailyInterests;
     double m_liqPriceRatio;
 
@@ -61,7 +61,7 @@ public:
     double refund(unsigned short netRefilledTimes);
 
 private:
-    const double m_refundLevel = 0.4;
+    double const m_refundLevel = 0.4;
 
     double m_refundPriceRatio1, m_refundPriceRatio2;
     unsigned short m_refunded = 0;

@@ -20,8 +20,8 @@ class Contract {
 protected:
     Contract(double leverage, ContractSide side);
 
-    const double m_leverage;
-    const ContractSide m_side;
+    double const m_leverage;
+    ContractSide const m_side;
 
     double m_liqPriceRatio;
 

@@ -45,7 +45,7 @@ struct Facts {
 };
 
 struct Config {
-    Config(const Facts &facts) {
+    Config(Facts const&facts) {
         totalQty = facts.quantity;
         pledgeQty = (1 - facts.elecProp) * totalQty /
                 (1 + facts.remainCollaRatio - facts.initCollaLevel);
@@ -76,7 +76,7 @@ struct Config {
 
 class Strategy {
 public:
-    Strategy(const Facts& facts, const Config& config);
+    Strategy(Facts const& facts, Config const& config);
     ~Strategy();
 
     void run();

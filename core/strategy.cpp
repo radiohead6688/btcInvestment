@@ -6,7 +6,7 @@
 using std::cout;
 using std::endl;
 
-Strategy::Strategy(const Facts& facts, const Config& config) {
+Strategy::Strategy(Facts const& facts, Config const& config) {
     double elecProp = 0.78;
     double entryPrice = 7050;
     double quantity = 38.4615;

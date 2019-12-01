@@ -7,18 +7,19 @@ Miner::Miner(MinerType type) : m_type(type) {
         case MinerType::InnosiliconT2T_30T:
             m_power = 2.4;
             m_hashrate = 30;
-
+            break;
         case MinerType::Avalon1047_37T:
             m_power = 2.4;
             m_hashrate = 37;
-
+            break;
         case MinerType::WhatsMinerM21s_54T:
             m_power = 3.3;
             m_hashrate = 54;
-
+            break;
         default:
             std::cout << "Unknown miner type\n";
             exit(-1);
+            break;
     }
 }
 

@@ -11,7 +11,7 @@ class Trade {
 protected:
     explicit Trade(double fee) : m_fee(fee) {}
 
-    const double m_fee;
+    double const m_fee;
 
 public:
     virtual ~Trade() {}

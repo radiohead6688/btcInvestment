@@ -75,7 +75,7 @@ double BabelPledge::getRefillPriceRatio(unsigned short netRefilledTimes) const {
                 throw;
                 break;
         }
-    } catch (const std::exception& e) {
+    } catch (std::exception const & e) {
         exit(-1);
     }
 
@@ -100,7 +100,7 @@ double BabelPledge::getLiqPriceRatio(unsigned short netRefilledTimes) const {
                 throw;
                 break;
         }
-    } catch (const std::exception& e) {
+    } catch (std::exception const& e) {
         exit(-1);
     }
 
@@ -122,7 +122,7 @@ double BabelPledge::getRefillCollaRatio(unsigned short netRefilledTimes) {
                 throw;
                 break;
         }
-    } catch(const std::exception& e) {
+    } catch(std::exception const& e) {
         exit(-1);
     }
 
@@ -148,7 +148,7 @@ double BabelPledge::refund(unsigned short netRefilledTimes) {
                 throw;
                 break;
         }
-    } catch (const std::exception& e) {
+    } catch (std::exception const& e) {
         exit(-1);
     }
 

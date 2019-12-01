@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include "strategyBuilder.h"
+#include "miningManagement.h"
+#include "miningFarm.h"
 
 using std::cout;
 using std::endl;
@@ -128,4 +130,45 @@ double getDailyIncomeCNY(double hashrate, double dailyIncomeCNYPerTHS) {
 
 double getElecProp(double elecFeeCNY, double dailyIncomeCNY) {
     return elecFeeCNY / dailyIncomeCNY;
+}
+
+double calculateElecFeeCNY() {
+    MiningFarm yunNan = {Location::YunNan,
+            std::map<MinerType, unsigned> {{MinerType::InnosiliconT2T_30T, 2150}},
+            0.03,
+            0.39,
+            std::vector<unsigned short> {7, 22}
+            };
+
+    MiningFarm zhunDong = {Location::ZhunDong,
+            std::map<MinerType, unsigned> {{MinerType::InnosiliconT2T_30T, 1000}},
+            0.025,
+            0.38,
+            std::vector<unsigned short> {7, 17, 27}
+            };
+
+    MiningFarm lanZhou = {Location::LanZhou,
+            std::map<MinerType, unsigned> {{MinerType::Avalon1047_37T, 1025}},
+            0.03,
+            0.37,
+            std::vector<unsigned short> {22}
+            };
+
+    MiningFarm wuHai = {Location::WuHai,
+            std::map<MinerType, unsigned> {{MinerType::WhatsMinerM21s_54T, 302},
+                                           {MinerType::InnosiliconT2T_30T, 2074}},
+            0.023,
+            0.39,
+            std::vector<unsigned short> {12, 27}
+            };
+
+    std::vector<MiningFarm> miningFarms = {yunNan, zhunDong, lanZhou, wuHai};
+
+    MiningMgmt miningMgmt = {miningFarms};
+
+    cout.precision(4);
+    cout << std::fixed
+         << miningMgmt.getElecFeeCNY(30) << endl;
+
+    return 0.0;
 }
