@@ -6,11 +6,12 @@
 #include <vector>
 #include <map>
 
-enum class Location : uint16_t {
-    YunNan                  = 0x01,
-    ZhunDong                = 0x02,
-    LanZhou                 = 0x03,
-    WuHai                   = 0x04,
+enum class MiningFarmSite : uint16_t {
+    YunNanLeased            = 0x01,
+    YunNanOwn               = 0x02,
+    ZhunDong                = 0x03,
+    LanZhou                 = 0x04,
+    WuHai                   = 0x05,
     /* Add new platform*/
 
     UnknownPlatform = 0xFFFF,
@@ -19,7 +20,7 @@ enum class Location : uint16_t {
 
 class MiningFarm {
 public:
-    MiningFarm(Location location, std::map<MinerType, unsigned> minerNums,
+    MiningFarm(MiningFarmSite site, std::map<MinerType, unsigned> minerNums,
             double powerLineLossRatio, double elecFeePerKwh,
             std::vector<unsigned short> elecFeeDate);
 
@@ -30,7 +31,7 @@ public:
     std::vector<unsigned short> getElecFeeDate() const {return m_elecFeeDate;}
 
 private:
-    Location m_location;
+    MiningFarmSite m_site;
     double m_elecFeePerKwh;
     double m_powerLineLossRatio;
     double m_totalHashrate = 0.0;   // in THS

@@ -5,10 +5,10 @@
 #include <algorithm>
 #include <map>
 
-MiningFarm::MiningFarm(Location location, std::map<MinerType, unsigned> minerNums,
+MiningFarm::MiningFarm(MiningFarmSite site, std::map<MinerType, unsigned> minerNums,
         double powerLineLossRatio, double elecFeePerKwh,
         std::vector<unsigned short> elecFeeDate)
-        : m_location(location), m_minerNums(minerNums), m_powerLineLossRatio(powerLineLossRatio),
+        : m_site(site), m_minerNums(minerNums), m_powerLineLossRatio(powerLineLossRatio),
           m_elecFeePerKwh(elecFeePerKwh), m_elecFeeDate(elecFeeDate) {
     for (auto const& i : m_minerNums) {
         Miner miner = Miner(i.first);

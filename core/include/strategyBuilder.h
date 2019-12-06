@@ -33,7 +33,9 @@ struct Configs {
     double elecFee = 0;
 };
 
-void calculateStrategy(double elecFeeUsdt);
+void calculateStrategyByFixedElecFee(double elecFeeUsdt);
+
+void calculateStrategyByFixedQuantity(double quantity, double elecQty);
 
 void getCollaQtyByFixedLoan(double elecFeeUsdt, double entryPrice, unsigned short duration,
         unsigned short netRefillTimesLimit);

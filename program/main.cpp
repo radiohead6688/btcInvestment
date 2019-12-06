@@ -21,8 +21,15 @@ void test(){
 int main()
 {
     //test();
-    calculateElecFeeCNY(7.08, 7300);
-    //calculateStrategy(150000);
+
+    //getCollaQtyByFixedLoan(324225, 7205, 90, 1);
+
+    calculateStrategyByFixedQuantity(114.06, 90*31/30);
+
+    //calculateElecFeeCNY(7.08, 7300);
+    //calculateStrategyByFixedElecFee(283046.55);
+
+    //calculateStrategyByFixedElecFee(150000);
     //getCollaQtyByFixedLoan(150000, 7500, 90, 1);
     //for (double i = 7000; i < 8000; i += 100) {
         //getCollaQtyByFixedLoan(150000, 7500, 90, 1);

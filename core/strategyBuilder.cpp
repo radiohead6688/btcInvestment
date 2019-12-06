@@ -12,12 +12,12 @@ using std::endl;
  * collaQty * initCollaLevel + (1 - tradeFeeRate) * tradeQty = quantity * elecProp;
  * refillQty = collaQty * refillCollaRatio;
  */
-void calculateStrategy(double elecFeeUsdt) {
-    double elecProp = 0.78;
-    double entryPrice = 6900.0;
+void calculateStrategyByFixedElecFee(double elecFeeUsdt) {
+    double elecProp = 0.74;
+    double entryPrice = 7300.0;
     double elecQty = elecFeeUsdt / entryPrice;
     double quantity = elecQty / elecProp;
-    double refillCollaRatio = 1.0 / 3.0;
+    double refillCollaRatio = 0.25;
     double initCollaLevel = 0.6;
     double tradeFeeRate = 0.007;
 
@@ -39,6 +39,56 @@ void calculateStrategy(double elecFeeUsdt) {
          << "elecProp: " << elecProp << endl
          << "elecQty: " << elecQty << endl
          << "quantity: " << quantity << endl
+         << "initCollaLevel: " <<  initCollaLevel << endl
+         << "refillCollaRatio: " << refillCollaRatio << endl
+         << "collaQty: " << collaQty << endl
+         << "tradeQty: " << tradeQty << endl
+         << "refillQty: " << refillQty << endl
+         << "pProp: " << pProp << endl
+         << "tProp: " << tProp << endl
+         << "rProp: " << rProp << endl
+         << "usdtLoanAmnt: " << usdtLoanAmnt << endl
+         << "tradeAmnt: " << tradeAmnt << endl
+         << "totalAmnt: " << usdtLoanAmnt + tradeAmnt << endl;
+}
+
+void calculateStrategyByFixedQuantity(double quantity, double elecQty) {
+    double entryPrice = 7300.0;
+    double refillCollaRatio = 0.25;
+    double initCollaLevel = 0.6;
+    double tradeFeeRate = 0.007;
+
+    double maximumLoanQty = (quantity / (1 + refillCollaRatio)) * initCollaLevel;
+    if (maximumLoanQty >= elecQty) {
+        double collaQty = elecQty / initCollaLevel;
+        double refillQty = collaQty * refillCollaRatio;
+        double remainQty = quantity - collaQty - refillQty;
+
+        cout.precision(4);
+        cout << "collaQty: " << collaQty << endl
+             << "refillQty: " << refillQty << endl
+             << "remainQty: " << remainQty << endl
+             << "maximumLoanQty: " << maximumLoanQty << endl;
+        return;
+    }
+
+    double collaQty = ((1.0 - tradeFeeRate) * quantity - elecQty) /
+            ((1.0 + refillCollaRatio) * (1.0 - tradeFeeRate)  - initCollaLevel);
+    double refillQty = collaQty * refillCollaRatio;
+    double tradeQty = quantity - collaQty - refillQty;
+
+    double tProp = tradeQty / quantity;
+    double pProp = collaQty / quantity;
+    double rProp = refillQty / quantity;
+
+    double usdtLoanAmnt = collaQty * initCollaLevel * entryPrice;
+    double tradeAmnt = tradeQty * (1 - tradeFeeRate) * entryPrice;
+
+    cout.precision(4);
+    cout << std::fixed
+         << "entryPrice: " << entryPrice << endl
+         << "quantity: " << quantity << endl
+         << "elecQty: " << elecQty << endl
          << "initCollaLevel: " <<  initCollaLevel << endl
          << "refillCollaRatio: " << refillCollaRatio << endl
          << "collaQty: " << collaQty << endl
@@ -133,36 +183,43 @@ double getElecProp(double elecFeeCNY, double dailyIncomeCNY) {
 }
 
 double calculateElecFeeCNY(double usdtCNYRate, double price) {
-    MiningFarm yunNan = {Location::YunNan,
-            std::map<MinerType, unsigned> {{MinerType::InnosiliconT2T_30T, 2150}},
+    MiningFarm yunNanLeased = {MiningFarmSite::YunNanLeased,
+            std::map<MinerType, unsigned> {{MinerType::InnosiliconT2T_30T, 1050}},
             0.03,
             0.39,
             std::vector<unsigned short> {7, 22}
             };
 
-    MiningFarm zhunDong = {Location::ZhunDong,
+    MiningFarm yunNanOwn = {MiningFarmSite::YunNanOwn,
+            std::map<MinerType, unsigned> {{MinerType::InnosiliconT2T_30T, 1100}},
+            0.03,
+            0.43,
+            std::vector<unsigned short> {7, 22}
+            };
+
+    MiningFarm zhunDong = {MiningFarmSite::ZhunDong,
             std::map<MinerType, unsigned> {{MinerType::InnosiliconT2T_30T, 1000}},
             0.025,
-            0.38,
+            0.43,
             std::vector<unsigned short> {7, 17, 27}
             };
 
-    MiningFarm lanZhou = {Location::LanZhou,
+    MiningFarm lanZhou = {MiningFarmSite::LanZhou,
             std::map<MinerType, unsigned> {{MinerType::Avalon1047_37T, 1025}},
             0.03,
-            0.37,
+            0.43,
             std::vector<unsigned short> {22}
             };
 
-    MiningFarm wuHai = {Location::WuHai,
+    MiningFarm wuHai = {MiningFarmSite::WuHai,
             std::map<MinerType, unsigned> {{MinerType::WhatsMinerM21s_54T, 302},
                                            {MinerType::InnosiliconT2T_30T, 2074}},
             0.023,
-            0.39,
+            0.43,
             std::vector<unsigned short> {12, 27}
             };
 
-    std::vector<MiningFarm> miningFarms = {yunNan, zhunDong, lanZhou, wuHai};
+    std::vector<MiningFarm> miningFarms = {yunNanLeased, yunNanOwn, zhunDong, lanZhou, wuHai};
 
     MiningMgmt miningMgmt = {miningFarms};
 
@@ -180,7 +237,6 @@ double calculateElecFeeCNY(double usdtCNYRate, double price) {
              << i.second / usdtCNYRate << " usdt, "
              << i.second / usdtCNYRate / price << " btc" << endl;
     }
-
 
     return 0.0;
 }
