@@ -1,3 +1,4 @@
+#include <istream>
 #include <iostream>
 #include <fstream>
 #include <streambuf>
@@ -7,23 +8,73 @@
 
 #include "csv.h"
 
-void writeCSV(std::string str) {
+void CSVRow::readNextRow(std::istream& str) {
+    std::string line;
+    std::getline(str, line);
+
+    std::stringstream lineStream(line);
+    std::string cell;
+
+    m_data.clear();
+    while(std::getline(lineStream, cell, ','))
+    {
+        m_data.push_back(cell);
+    }
+
+    if (!lineStream && cell.empty())    // check for a trailing comma with no data after it
+    {
+        m_data.push_back("");   // add an empty element
+    }
+}
+
+std::istream& operator>>(std::istream& str, CSVRow& data)
+{
+    data.readNextRow(str);
+    return str;
+}
+
+CSVIterator& CSVIterator::operator++() {
+    if (m_str) {
+        if (!((*m_str) >> m_row)) {
+            m_str = nullptr;
+        }
+    }
+    return *this;
+}
+
+CSVIterator CSVIterator::operator++(int) {
+    CSVIterator tmp(*this);
+    ++(*this);
+    return tmp;
+}
+
+bool CSVIterator::operator==(CSVIterator const& rhs) {
+    return ((this == &rhs) || ((this->m_str == nullptr) && (rhs.m_str == nullptr)));
+}
+
+void writeCSV(std::string fileName) {
     std::ofstream oFile;
 
-    oFile.open("scoresheet.csv", std::ios::out | std::ios::trunc);
-    //oFile << "姓名" << "," << "年龄" << "," << "班级" << "," << "班主任" << endl;
-    //oFile << "张三" << "," << "22" << "," << "1" << "," << "JIM" << endl;
-    //oFile << "李四" << "," << "23" << "," << "3" << "," << "TOM" << endl;
+    oFile.open(fileName, std::ios::out | std::ios::trunc);
+    oFile << "Date" << "," << "Open" << "," << "High" << "," << "Low" << "," << "Close" << std::endl
+          << "Dec 6 2019" << "," << "8888.8" << "," << "9999.9" << "," << "7777.7" << "," << "8001.1" << std::endl
+          << "Dec 7 2019" << "," << "8003.3" << "," << "9999.9" << "," << "7534.8" << "," << "9001.1" << std::endl;
 
     oFile.close();
 }
 
-std::string readCSV(std::string file) {
-    std::ifstream iFile(file);
-    std::string readStr((std::istreambuf_iterator<char>(iFile)),  std::istreambuf_iterator<char>());
-    std::cout << readStr.c_str();
-    iFile.close();
-    return readStr;
+void readCSV(std::string fileName) {
+    std::ifstream file(fileName);
+    CSVRow row;
+    while(file >> row)
+    {
+        std::cout << "4th Element(" << row[1] << ")\n";
+    }
+
+    //for(CSVIterator loop(file); loop != CSVIterator(); ++loop)
+    //{
+        //std::cout << "4th Element(" << (*loop)[1] << ")\n";
+    //}
 }
 
 std::map<double,double> revenue(std::vector<double> &btcPrices) {
@@ -34,5 +85,3 @@ std::map<double,double> revenue(std::vector<double> &btcPrices) {
     }
     return ret;
 }
-
-

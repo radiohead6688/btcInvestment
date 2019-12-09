@@ -6,6 +6,7 @@
 #include "pledge.h"
 #include "contract.h"
 #include "log.h"
+#include "csv.h"
 
 using std::cout;
 using std::endl;
@@ -24,7 +25,7 @@ int main()
 
     //getCollaQtyByFixedLoan(324225, 7205, 90, 1);
 
-    calculateStrategyByFixedQuantity(114.06, 90*31/30);
+    //calculateStrategyByFixedQuantity(114.06, 90*31/30);
 
     //calculateElecFeeCNY(7.08, 7300);
     //calculateStrategyByFixedElecFee(283046.55);
