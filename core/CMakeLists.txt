@@ -1,4 +1,4 @@
-SET(core_source strategy.cpp strategyBuilder.cpp controller.cpp trade.cpp contract.cpp pledge.cpp)
+SET(core_source strategy.cpp strategyBuilder.cpp portfolio.cpp trade.cpp contract.cpp pledge.cpp simulation.cpp kline.cpp dataHandler.cpp)
 
 #SET(third_party_libs
         #${CMAKE_SOURCE_DIR}/thirdParty/boost_1_70_0/stage/lib/libboost_program_options.a

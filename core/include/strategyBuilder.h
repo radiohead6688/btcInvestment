@@ -8,31 +8,6 @@
 #include "contract.h"
 #include "log.h"
 
-
-struct Configs {
-    struct {
-        Trade* ptr = nullptr;
-        double quantity = 0;
-    } trade;
-
-    struct {
-        Pledge* ptr = nullptr;
-        double quantity = 0;
-        unsigned short duration = 0;
-        unsigned short netRefillTimesLimits = 0;
-    } pledge;
-
-    struct {
-        Contract* ptr = nullptr;
-        double quantity = 0;
-    } contract;
-
-    double usdtLoanAmnt = 0;
-    double entryPrice = 0;
-    double elecProp = 0;
-    double elecFee = 0;
-};
-
 void calculateStrategyByFixedElecFee(double elecFeeUsdt);
 
 void calculateStrategyByFixedQuantity(double quantity, double elecQty);

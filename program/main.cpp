@@ -1,6 +1,8 @@
 #include <iostream>
 
+#include "argument.h"
 #include "strategy.h"
+#include "simulation.h"
 #include "strategyBuilder.h"
 #include "trade.h"
 #include "pledge.h"
@@ -11,18 +13,13 @@
 using std::cout;
 using std::endl;
 
-void test(){
-    double dailyElecFeeCNY = getDailyElecFeeCNY(2.4, 0.385);
-    double dailyIncomeCNY= getDailyIncomeCNY(30, 1.07);
-    double elecProp = dailyElecFeeCNY / dailyIncomeCNY;
-    cout.precision(8);
-    cout << elecProp << endl;
-}
-
 int main()
 {
-    //test();
+    Strategy* sPtr = StrategyFactory::createStrategy();
+    Simulation si(sPtr);
 
+    //std::unique_ptr<Stock> ptr = sPtr->getStock();
+    //std::cout << ptr->getBtyQty();
     //getCollaQtyByFixedLoan(324225, 7205, 90, 1);
 
     //calculateStrategyByFixedQuantity(114.06, 90*31/30);
@@ -36,8 +33,6 @@ int main()
         //getCollaQtyByFixedLoan(150000, 7500, 90, 1);
         //cout << endl;
     //}
-
-    //testStrategy();
 
     return 0;
 }

@@ -1,20 +1,22 @@
-#include "pledge.h"
 #include <iostream>
+
+#include "pledge.h"
+#include "portfolio.h"
 #include "exception.h"
 
 using std::cout;
 using std::endl;
 
-Pledge::Pledge(double icl, double mrfil, double ll, double air) :
+PledgeBase::PledgeBase(double icl, double mrfil, double ll, double air) :
     m_initCollaLevel(icl), m_refillLevel(mrfil), m_liqLevel(ll),
     m_annualizedInterestsRate(air) {
 
-    m_dailyInterests = m_annualizedInterestsRate/ 365;
+    m_dailyInterests = m_annualizedInterestsRate / 365;
 
     m_liqPriceRatio = m_initCollaLevel / m_liqLevel;
 
     m_refillPriceRatio1 = m_initCollaLevel / m_refillLevel;
-    m_refillCollaRatio1 = (1/m_refillPriceRatio1) - 1;
+    m_refillCollaRatio1 = (1 / m_refillPriceRatio1) - 1;
     m_liqPriceRatio1 = m_initCollaLevel / (m_liqLevel * (m_refillCollaRatio1 + 1));
 
     m_refillPriceRatio2 = m_initCollaLevel / (m_refillLevel * (m_refillCollaRatio1 + 1));
@@ -23,31 +25,37 @@ Pledge::Pledge(double icl, double mrfil, double ll, double air) :
 }
 
 /*
- * @brief Returns ROE percentage (quantity-base)
- * @param entryPrice    entry price
- * @param price         current price
- * @return Returns the Return On Equity percentage
+ * @brief Returns real time quantity at given price
+ * @param entryPrice        entry price
+ * @param price             current price
+ * @param currQty           current pledge quantity
+ * @param initQty           initial pledge quantity
+ * @param duration          pledge duration
+ * @param netRefilledTimes  net refill times
+ * @return Returns real time quantity at given price
  * @TODO correct the ratio
  */
-double Pledge::getROEPct(double entryPrice, double price, double currQty, double initQty,
-        unsigned short duration, unsigned short netRefilledTimes) const {
-    if (price == 0 || currQty == 0) {
-        return 0;
-    }
+//double PledgeBase::getQty(double entryPrice, double price, double currQty, double initQty,
+        //unsigned short duration, unsigned short netRefilledTimes) const {
+    //if (price == 0 || currQty == 0) {
+        //return 0.0;
+    //}
 
-    if (price / entryPrice <= getLiqPriceRatio(netRefilledTimes)) {
-        return 0;
-    }
+    //if ((price / entryPrice) <= getLiqPriceRatio(netRefilledTimes)) {
+        //return 0.0;
+    //}
 
-    return 1 - m_initCollaLevel * (entryPrice / price) * (initQty / currQty)
-            * (1 + duration * m_dailyInterests);
-}
+    //return currQty - m_initCollaLevel * (entryPrice / price) * initQty
+            //* (1 + duration * m_dailyInterests);
+//}
 
-BabelPledge::BabelPledge() : Pledge(0.6, 0.8, 0.9, 0.0888) {
+BabelPledge::BabelPledge() : PledgeBase(0.6, 0.8, 0.9, 0.0888) {
     m_refundPriceRatio1 = m_initCollaLevel / ((m_refillCollaRatio1 + 1) * m_refundLevel);
     m_refundPriceRatio2 = m_initCollaLevel / ((m_refillCollaRatio2 + 1) * m_refundLevel);
 
-    //cout << "Babel Pledge:" << endl
+    //cout.precision(8);
+    //cout << std::fixed
+         //<< "Babel PledgeBase:" << endl
          //<< "daily interests: " << m_dailyInterests << endl
          //<< "refill price: " << m_refillPriceRatio1 << endl
          //<< "liquidation price: " << m_liqPriceRatio << endl
@@ -70,12 +78,39 @@ double BabelPledge::getRefillPriceRatio(unsigned short netRefilledTimes) const {
             case 1:
                 ret = m_refillPriceRatio2;
                 break;
+            //TODO: added more times
             default:
                 cout << "Invalid refill times. Check strategy." << endl;
                 throw;
                 break;
         }
     } catch (std::exception const & e) {
+        exit(-1);
+    }
+
+    return ret;
+}
+
+double BabelPledge::getRefundPriceRatio(unsigned short netRefilledTimes) const {
+    double ret;
+    try {
+        switch (netRefilledTimes) {
+            case 0:
+                cout << "Nothing to refund. Check strategy." << endl;
+                throw;
+                break;
+            case 1:
+                ret = m_refundPriceRatio1;
+                break;
+            case 2:
+                ret = m_refundPriceRatio2;
+                break;
+            default:
+                cout << "Invalid refund times. Check strategy." << endl;
+                throw;
+                break;
+        }
+    } catch (std::exception const& e) {
         exit(-1);
     }
 
@@ -107,7 +142,7 @@ double BabelPledge::getLiqPriceRatio(unsigned short netRefilledTimes) const {
     return liqPriceRatio;
 }
 
-double BabelPledge::getRefillCollaRatio(unsigned short netRefilledTimes) {
+double BabelPledge::getRefillCollaRatio(unsigned short netRefilledTimes) const {
     double refillCollaRatio;
     try {
         switch (netRefilledTimes) {
@@ -129,7 +164,7 @@ double BabelPledge::getRefillCollaRatio(unsigned short netRefilledTimes) {
     return refillCollaRatio;
 }
 
-double BabelPledge::refund(unsigned short netRefilledTimes) {
+double BabelPledge::getRefundCollaRatio(unsigned short netRefilledTimes) const {
     double refundCollaRatio;
     try {
         switch (netRefilledTimes) {
@@ -152,10 +187,133 @@ double BabelPledge::refund(unsigned short netRefilledTimes) {
         exit(-1);
     }
 
-    m_refunded += 1;
-
     return refundCollaRatio;
 }
 
-GateioPledge::GateioPledge() : Pledge(0.7, 0.8, 0.9, 0.1388) {
+GateioPledge::GateioPledge()
+        : PledgeBase(0.7, 0.8, 0.9, 0.1388) {
+}
+
+Pledge::Pledge(std::unique_ptr<PledgeBase> platform, double entryPrice, double initCollaQty,
+        unsigned short netRefillTimesLimit, unsigned short term)
+        : m_platform(std::move(platform)), m_entryPrice(entryPrice), m_initCollaQty(initCollaQty),
+          m_netRefillTimesLimit(netRefillTimesLimit), m_term(term) {
+    m_collaQty = m_initCollaQty;
+}
+
+//Pledge::Pledge(std::shared_ptr<Portfolio> portfolio)
+        //: m_portfolio(portfolio) {
+    //m_platform = PledgeFactory::createPledge(ARGs.m_pledge.platform);
+//}
+
+std::unique_ptr<PledgeBase> PledgeFactory::createPledge(Platform platform) {
+    switch (platform) {
+        case Platform::Babel:
+            return std::make_unique<BabelPledge>();
+        case Platform::Gateio:
+            return std::make_unique<GateioPledge>();
+        case Platform::Unknown:
+        default:
+            throw "Invalid pledge platform.\n";
+    }
+}
+
+Pledge::~Pledge() {
+}
+
+void Pledge::init() {
+    //m_entryPrice = ARGs.m_entryPrice;
+    //m_term = ARGs.m_pledge.durationInDays;
+    //m_netRefillTimesLimit = ARGs.m_pledge.netRefillTimesLimit;
+
+    //m_initCollaQty = ARGs.m_pledge.qty;
+    //if (m_initCollaQty > m_portfolio->getBtcBal()) {
+        //cout << "Failed to initiate pledgeCtrl. Insufficient balance." << endl;
+        //exit(-1);
+    //}
+
+    //m_portfolio->decrBtcBal(m_initCollaQty);
+    //m_collaQty = m_initCollaQty;
+    //m_loanUsdtAmnt = m_platform->getInitCollaLevel() * m_initCollaQty * m_entryPrice;
+    //m_portfolio->incrUsdtBal(m_loanUsdtAmnt);
+
+    //m_refillPrice = m_entryPrice *
+            //m_platform->getRefillPriceRatio(m_refilledTimes - m_refundedTimes);
+}
+
+void Pledge::incrCollaQty(double qty) {
+    if (qty > m_portfolio->getBtcBal()) {
+        cout << "Failed to increase pledge. Insufficient balance" << endl;
+        return;
+    }
+
+    m_portfolio->decrBtcBal(qty);
+    m_collaQty += qty;
+}
+
+void Pledge::updateRefillAndRefundPrice(unsigned short netRefilledTimes) {
+    m_refillPrice *= m_entryPrice * m_platform->getRefillPriceRatio(netRefilledTimes);
+    m_refundPrice *= m_entryPrice * m_platform->getRefundPriceRatio(netRefilledTimes);
+}
+
+double Pledge::evaluateQty() const {
+    if (m_liquidated) {
+        return 0.0;
+    }
+
+    return m_collaQty - m_portfolio->getUsdtValueInBtc(m_loanUsdtAmnt);
+}
+
+void Pledge::update(double price) {
+    if (m_liquidated) {
+        return;
+    }
+
+    if (m_refilledTimes - m_refundedTimes < m_netRefillTimesLimit && price <= m_refillPrice) {
+        refill();
+    }
+
+    m_liqPrice = m_entryPrice * m_platform->getLiqPriceRatio(m_refilledTimes - m_refundedTimes);
+    if (price <= m_liqPrice) {
+        m_liquidated = true;
+        return;
+    }
+
+    if (m_refilledTimes - m_refundedTimes > 0 && price >= m_refundPrice) {
+        refund();
+    }
+}
+
+double Pledge::getMaxRefillCollaRatio() const {
+    return m_platform->getRefillCollaRatio(m_netRefillTimesLimit);
+}
+
+void Pledge::refill() {
+    double refillQty = m_initCollaQty *
+            m_platform->getRefillCollaRatio(m_refilledTimes - m_refundedTimes);
+
+    double btcBal = m_portfolio->getBtcBal();
+    if (refillQty > btcBal) {
+        double qty = refillQty - btcBal;
+        m_portfolio->purchaseBtc(qty);
+    }
+
+    m_portfolio->decrBtcBal(refillQty);
+    m_collaQty += refillQty;
+    m_refilledTimes += 1;
+    updateRefillAndRefundPrice(m_refilledTimes - m_refundedTimes);
+
+    cout << "Refilled pledge with " << refillQty << " btc." << endl;
+}
+
+void Pledge::refund() {
+    double refundQty = m_initCollaQty *
+            m_platform->getRefundCollaRatio(m_refilledTimes - m_refundedTimes);
+
+    m_portfolio->incrBtcBal(refundQty);
+    m_collaQty -= refundQty;
+    m_refundedTimes += 1;
+    updateRefillAndRefundPrice(m_refilledTimes - m_refundedTimes);
+
+    cout << "Refunded pledge with " << refundQty << " btc." << endl;
 }
