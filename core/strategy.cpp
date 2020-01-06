@@ -62,6 +62,11 @@ StockPledgeStrategy::StockPledgeStrategy() {
         remainQty = 0.0;
     }
 
+    double refillPrice = entryPrice * pPlatform->getRefillPriceRatio(netRefillTimesLimit - 1);
+    double originalLiqPrice = entryPrice * pPlatform->getLiqPriceRatio(netRefillTimesLimit - 1);
+    double liqPrice = entryPrice * pPlatform->getLiqPriceRatio(netRefillTimesLimit - 1);
+    double refundPrice = entryPrice * pPlatform->getRefundPriceRatio(netRefillTimesLimit);
+
     double stockBtcQty = remainQty + sellQty + refillQty + interestsQty;
     m_stock = std::make_unique<Stock>(std::move(tPlatform), stockBtcQty, usdtQty);
 
@@ -71,6 +76,12 @@ StockPledgeStrategy::StockPledgeStrategy() {
     std::cout.precision(4);
     std::cout << std::fixed
          << "entryPrice: " << entryPrice << std::endl
+         << "refillPrice: " << refillPrice << std::endl
+         << "originalLiqPrice: " << originalLiqPrice << std::endl
+         << "liqPrce: " << liqPrice << std::endl
+         << "refundPrice: " << refundPrice << std::endl
+         << std::endl
+         << "reservedRefillCollaRatio: " << reservedRefillCollaRatio << std::endl
          << "quantity: " << btcQty << std::endl
          << "elecUsdtQty: " << elecUsdtQty << std::endl
          << "initCollaLevel: " <<  initCollaLevel << std::endl
@@ -82,23 +93,6 @@ StockPledgeStrategy::StockPledgeStrategy() {
          << "usdtLoanAmnt: " << collaQty * initCollaLevel * entryPrice << std::endl
          << "tradeAmnt: " << sellQty << std::endl
          << "maximumLoanQty: " << maximumLoanUsdtQty << std::endl;
-
-
-    //m_initCollaQty = ARGs.m_pledge.qty;
-    //if (m_initCollaQty > m_portfolio->getBtcBal()) {
-        //cout << "Failed to initiate pledgeCtrl. Insufficient balance." << std::endl;
-        //exit(-1);
-    //}
-
-    //m_portfolio->decrBtcBal(m_initCollaQty);
-    //m_collaQty = m_initCollaQty;
-    //m_loanUsdtAmnt = m_platform->getInitCollaLevel() * m_initCollaQty * m_entryPrice;
-    //m_portfolio->incrUsdtBal(m_loanUsdtAmnt);
-
-    //m_refillPrice = m_entryPrice *
-            //m_platform->getRefillPriceRatio(m_refilledTimes - m_refundedTimes);
-
-    //m_pledge = std::make_unique<Pledge>(std::move(platform), btcQty, usdtQty);
 }
 
 Strategy* StrategyFactory::createStrategy() {
@@ -114,43 +108,3 @@ Strategy* StrategyFactory::createStrategy() {
             throw "Invalid strategy type.\n";
     }
 }
-
-
-//Strategy::Strategy() {
-    //double elecProp = 0.78;
-    //double entryPrice = 7050;
-    //double quantity = 38.4615;
-    //double tProp = 0.576923;
-    //double pProp = 0.338462;
-    //double cProp = 0;
-    //PledgePlatform pledgePlatform = PledgePlatform::BabelPledge;
-    //double durationInDays = 90;
-    //double tradeFee = 0;
-    //double leverage = 1;
-    //unsigned short netRefillTimesLimit = 1;
-    //ContractSide contractSide = ContractSide::SellShort;
-
-    //m_c = new Controller();
-
-    //double refPrices[] = {4000, 4556, 5400, 6075, 7500, 8100, 9135, 10000, 12000, 14000,
-                          //18000, 20000, 22400, 24000, 26000, 30000, 50000, 80000};
-    //unsigned refPricesSize = sizeof(refPrices) / sizeof(double);
-    //m_refPrices.insert(m_refPrices.end(), &refPrices[0], &refPrices[refPricesSize]);
-//}
-
-//Strategy::~Strategy() {
-    //delete m_c;
-//}
-
-//void Strategy::run() {
-    //cout << "Price\t\tQuantity" << endl;
-
-    //for (auto &i : m_refPrices) {
-        //double quantity = m_c->getQty(i);
-        //cout << i << "\t\t" << quantity << endl;
-    //}
-//}
-
-//double Strategy::getQty(double price) const {
-    //return m_c->getQty(price);
-//}
