@@ -32,9 +32,9 @@ public:
 
 public:
     Strategy::Type m_strategyType  = Strategy::Type::StockPledge;
-    double m_entryPrice                     = 7300;
-    double m_elecUsdtQty                    = 566115;
-    double m_btcQty                         = 108.0;
+    double m_entryPrice                     = 8100;
+    double m_elecUsdtQty                    = 582766;
+    double m_btcQty                         = 106.0;
     double m_usdtQty                        = 0.0;
 };
 

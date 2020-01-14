@@ -7,5 +7,5 @@ SET(program_source main.cpp)
 
 ADD_EXECUTABLE(main ${program_source} ${BOOST_LICS})
 
-TARGET_LINK_LIBRARIES(main backtest config core mining utils)
+TARGET_LINK_LIBRARIES(main backtest config core mining utils event)
 

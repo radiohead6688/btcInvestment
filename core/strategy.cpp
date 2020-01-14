@@ -26,13 +26,16 @@ StockPledgeStrategy::StockPledgeStrategy() {
     double initCollaLevel = pPlatform->getInitCollaLevel();
 
     // TODO: add 2 refills support, for now supports ONLY 1 refill
-    double reservedRefillCollaRatio = pPlatform->getRefillCollaRatio(netRefillTimesLimit - 1);
+    double refillCollaQty = pPlatform->getRefillCollaRatio(netRefillTimesLimit - 1);
+    double reservedRefillCollaRatio;
     switch (ARGs.m_pledge.refillCollaType) {
         case RefillCollaType::FullyReserved:
+            reservedRefillCollaRatio = refillCollaQty;
             break;
         case RefillCollaType::SellAndBuyBackAtRefillPrice:
             int tradeTimes = 2;
-            reservedRefillCollaRatio *= pPlatform->getRefillPriceRatio(netRefillTimesLimit - 1);
+            reservedRefillCollaRatio = refillCollaQty *
+                    pPlatform->getRefillPriceRatio(netRefillTimesLimit - 1);
             for (int i = 0; i < tradeTimes; ++i) {
                 reservedRefillCollaRatio *= tPlatform->getTradedToTargetRatio();
             }
@@ -64,6 +67,7 @@ StockPledgeStrategy::StockPledgeStrategy() {
 
     double refillPrice = entryPrice * pPlatform->getRefillPriceRatio(netRefillTimesLimit - 1);
     double originalLiqPrice = entryPrice * pPlatform->getLiqPriceRatio(netRefillTimesLimit - 1);
+    double refilledLiqPrice = entryPrice * pPlatform->getLiqPriceRatio(netRefillTimesLimit);
     double liqPrice = entryPrice * pPlatform->getLiqPriceRatio(netRefillTimesLimit - 1);
     double refundPrice = entryPrice * pPlatform->getRefundPriceRatio(netRefillTimesLimit);
 
@@ -78,10 +82,10 @@ StockPledgeStrategy::StockPledgeStrategy() {
          << "entryPrice: " << entryPrice << std::endl
          << "refillPrice: " << refillPrice << std::endl
          << "originalLiqPrice: " << originalLiqPrice << std::endl
+         << "LiqPrice after refill: " << refilledLiqPrice << std::endl
          << "liqPrce: " << liqPrice << std::endl
          << "refundPrice: " << refundPrice << std::endl
          << std::endl
-         << "reservedRefillCollaRatio: " << reservedRefillCollaRatio << std::endl
          << "quantity: " << btcQty << std::endl
          << "elecUsdtQty: " << elecUsdtQty << std::endl
          << "initCollaLevel: " <<  initCollaLevel << std::endl
@@ -91,7 +95,6 @@ StockPledgeStrategy::StockPledgeStrategy() {
          << "interestsQty: " << interestsQty << std::endl
          << "sellQty: " << sellQty << std::endl
          << "usdtLoanAmnt: " << collaQty * initCollaLevel * entryPrice << std::endl
-         << "tradeAmnt: " << sellQty << std::endl
          << "maximumLoanQty: " << maximumLoanUsdtQty << std::endl;
 }
 
