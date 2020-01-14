@@ -17,6 +17,8 @@ public:
 
     virtual double getRefundCollaRatio(unsigned short netRefilledTimes) const = 0;
 
+    virtual double getRefundLevel() const = 0;
+
     double getInitCollaLevel() const { return m_initCollaLevel; }
 
     double getDailyInterestsRate() const { return m_dailyInterests; }
@@ -40,6 +42,10 @@ protected:
     double m_dailyInterests;
 
     double m_liqPriceRatio;
+
+    double m_refillPriceRatio;
+
+    double m_refillCollaRatio;
 
     double m_refillPriceRatio1, m_refillPriceRatio2;
 
@@ -69,6 +75,8 @@ public:
 
     double getRefundCollaRatio(unsigned short netRefilledTimes) const override;
 
+    double getRefundLevel() const override { return m_refundLevel; }
+
 private:
     double const m_refundLevel = 0.4;
 
@@ -94,6 +102,9 @@ public:
     double getRefundPriceRatio(unsigned short netRefilledTimes) const override {return 0;}
 
     double getRefundCollaRatio(unsigned short netRefilledTimes) const override {return 0;}
+
+    //TODO
+    double getRefundLevel() const override { return 0; }
 };
 
 class PledgeFactory {
@@ -128,10 +139,28 @@ public:
 
     double getMaxRefillCollaRatio() const;
 
+    double getRefillPrice() const { return m_refillPrice; }
+
+    double getRefundPrice() const { return m_refundPrice; }
+
+    double getLiqPrice() const { return m_liqPrice; }
+
 private:
     void incrCollaQty(double qty);
 
     void updateRefillAndRefundPrice(unsigned short netRefilledTimes);
+
+    void updatePrices();
+
+    void updateRefillPrice();
+
+    void updateRefundPrice();
+
+    void updateLiqPrice();
+
+    double getRefillCollaQty() const;
+
+    double getRefundCollaQty() const;
 
     void refill();
 
@@ -159,7 +188,7 @@ private:
 
     double m_loanUsdtAmnt;
 
-    double m_collaQty = 0;
+    double m_collaQty;
 
     unsigned short m_duration = 0;
 

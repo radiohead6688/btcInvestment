@@ -50,9 +50,6 @@ PledgeBase::PledgeBase(double icl, double mrfil, double ll, double air) :
 //}
 
 BabelPledge::BabelPledge() : PledgeBase(0.6, 0.8, 0.9, 0.0888) {
-    m_refundPriceRatio1 = m_initCollaLevel / ((m_refillCollaRatio1 + 1) * m_refundLevel);
-    m_refundPriceRatio2 = m_initCollaLevel / ((m_refillCollaRatio2 + 1) * m_refundLevel);
-
     //cout.precision(8);
     //cout << std::fixed
          //<< "Babel PledgeBase:" << endl
@@ -70,6 +67,7 @@ BabelPledge::BabelPledge() : PledgeBase(0.6, 0.8, 0.9, 0.0888) {
 
 double BabelPledge::getRefillPriceRatio(unsigned short netRefilledTimes) const {
     double ret;
+
     try {
         switch (netRefilledTimes) {
             case 0:
@@ -199,12 +197,11 @@ Pledge::Pledge(std::unique_ptr<PledgeBase> platform, double entryPrice, double i
         : m_platform(std::move(platform)), m_entryPrice(entryPrice), m_initCollaQty(initCollaQty),
           m_netRefillTimesLimit(netRefillTimesLimit), m_term(term) {
     m_collaQty = m_initCollaQty;
-}
 
-//Pledge::Pledge(std::shared_ptr<Portfolio> portfolio)
-        //: m_portfolio(portfolio) {
-    //m_platform = PledgeFactory::createPledge(ARGs.m_pledge.platform);
-//}
+    m_loanUsdtAmnt = m_platform->getInitCollaLevel() * m_initCollaQty * m_entryPrice;
+
+    updatePrices();
+}
 
 std::unique_ptr<PledgeBase> PledgeFactory::createPledge(Platform platform) {
     switch (platform) {
@@ -251,11 +248,6 @@ void Pledge::incrCollaQty(double qty) {
     m_collaQty += qty;
 }
 
-void Pledge::updateRefillAndRefundPrice(unsigned short netRefilledTimes) {
-    m_refillPrice *= m_entryPrice * m_platform->getRefillPriceRatio(netRefilledTimes);
-    m_refundPrice *= m_entryPrice * m_platform->getRefundPriceRatio(netRefilledTimes);
-}
-
 double Pledge::evaluateQty() const {
     if (m_liquidated) {
         return 0.0;
@@ -287,10 +279,30 @@ void Pledge::update(double price) {
 double Pledge::getMaxRefillCollaRatio() const {
     return m_platform->getRefillCollaRatio(m_netRefillTimesLimit);
 }
+void Pledge::updatePrices() {
+    updateLiqPrice();
+    updateRefillPrice();
+    updateRefundPrice();
+}
+
+void Pledge::updateLiqPrice() {
+    double liqLevel = m_platform->getLiqLevel();
+    m_liqPrice = m_loanUsdtAmnt / (liqLevel * m_collaQty);
+}
+
+void Pledge::updateRefillPrice() {
+    double refillLevel = m_platform->getRefillLevel();
+    m_refillPrice = m_loanUsdtAmnt / (refillLevel * m_collaQty);
+}
+
+double Pledge::getRefillCollaQty() const {
+    double initCollaLevel = m_platform->getInitCollaLevel();
+    double collaQtyRequired = m_loanUsdtAmnt / (initCollaLevel * m_refillPrice);
+    return collaQtyRequired - m_collaQty;
+}
 
 void Pledge::refill() {
-    double refillQty = m_initCollaQty *
-            m_platform->getRefillCollaRatio(m_refilledTimes - m_refundedTimes);
+    double refillQty = getRefillCollaQty();
 
     double btcBal = m_portfolio->getBtcBal();
     if (refillQty > btcBal) {
@@ -300,20 +312,34 @@ void Pledge::refill() {
 
     m_portfolio->decrBtcBal(refillQty);
     m_collaQty += refillQty;
+
+    updatePrices();
+
     m_refilledTimes += 1;
-    updateRefillAndRefundPrice(m_refilledTimes - m_refundedTimes);
 
     cout << "Refilled pledge with " << refillQty << " btc." << endl;
 }
 
+void Pledge::updateRefundPrice() {
+    double refundLevel = m_platform->getRefundLevel();
+    m_refundPrice = m_loanUsdtAmnt / (refundLevel * m_collaQty);
+}
+
+double Pledge::getRefundCollaQty() const {
+    double initCollaLevel = m_platform->getInitCollaLevel();
+    double collaQtyRequired = m_loanUsdtAmnt / (initCollaLevel * m_refundPrice);
+    return m_collaQty - collaQtyRequired;
+}
+
 void Pledge::refund() {
-    double refundQty = m_initCollaQty *
-            m_platform->getRefundCollaRatio(m_refilledTimes - m_refundedTimes);
+    double refundQty = getRefundCollaQty();
 
     m_portfolio->incrBtcBal(refundQty);
     m_collaQty -= refundQty;
+
+    updatePrices();
+
     m_refundedTimes += 1;
-    updateRefillAndRefundPrice(m_refilledTimes - m_refundedTimes);
 
     cout << "Refunded pledge with " << refundQty << " btc." << endl;
 }

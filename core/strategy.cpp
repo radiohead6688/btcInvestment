@@ -65,8 +65,8 @@ StockPledgeStrategy::StockPledgeStrategy() {
         remainQty = 0.0;
     }
 
-    double refillPrice = entryPrice * pPlatform->getRefillPriceRatio(netRefillTimesLimit - 1);
-    double originalLiqPrice = entryPrice * pPlatform->getLiqPriceRatio(netRefillTimesLimit - 1);
+    //double refillPrice = entryPrice * pPlatform->getRefillPriceRatio(netRefillTimesLimit - 1);
+    //double originalLiqPrice = entryPrice * pPlatform->getLiqPriceRatio(netRefillTimesLimit - 1);
     double refilledLiqPrice = entryPrice * pPlatform->getLiqPriceRatio(netRefillTimesLimit);
     double liqPrice = entryPrice * pPlatform->getLiqPriceRatio(netRefillTimesLimit - 1);
     double refundPrice = entryPrice * pPlatform->getRefundPriceRatio(netRefillTimesLimit);
@@ -80,11 +80,11 @@ StockPledgeStrategy::StockPledgeStrategy() {
     std::cout.precision(4);
     std::cout << std::fixed
          << "entryPrice: " << entryPrice << std::endl
-         << "refillPrice: " << refillPrice << std::endl
-         << "originalLiqPrice: " << originalLiqPrice << std::endl
+         << "refillPrice: " << m_pledge->getRefillPrice() << std::endl
+         << "originalLiqPrice: " << m_pledge->getLiqPrice() << std::endl
          << "LiqPrice after refill: " << refilledLiqPrice << std::endl
          << "liqPrce: " << liqPrice << std::endl
-         << "refundPrice: " << refundPrice << std::endl
+         << "refundPrice: " << m_pledge->getRefundPrice() << std::endl
          << std::endl
          << "quantity: " << btcQty << std::endl
          << "elecUsdtQty: " << elecUsdtQty << std::endl
