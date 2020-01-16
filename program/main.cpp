@@ -17,6 +17,7 @@ int main()
 {
     Strategy* sPtr = StrategyFactory::createStrategy();
     Simulation si(sPtr);
+    si.run();
 
     //std::unique_ptr<Stock> ptr = sPtr->getStock();
     //std::cout << ptr->getBtyQty();

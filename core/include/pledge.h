@@ -133,7 +133,7 @@ public:
 
     void setPortfolio(std::shared_ptr<Portfolio> portfolio) { m_portfolio = portfolio; }
 
-    double evaluateQty() const;
+    double evaluateQty(double price) const;
 
     void update(double price);
 
@@ -144,6 +144,8 @@ public:
     double getRefundPrice() const { return m_refundPrice; }
 
     double getLiqPrice() const { return m_liqPrice; }
+
+    double isLiquidated() const { return m_liquidated; }
 
 private:
     void incrCollaQty(double qty);

@@ -62,9 +62,11 @@ public:
 
     void incrUsdtQty(double qty);
 
+    void decrUsdtQty(double qty);
+
     void purchaseBtc(double price, double netQty);
 
-    //void sellBtc(double price, double targetQty);
+    void sellBtc(double price, double targetQty);
 
     double evaluateQty(double price);
 

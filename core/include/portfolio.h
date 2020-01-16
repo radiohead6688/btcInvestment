@@ -21,7 +21,7 @@ public:
 
     void purchaseBtc(double netQty) { m_stock->purchaseBtc(m_priceLow, netQty); }
 
-    //void sellBtc(double qty) { m_stock->sellBtc(); }
+    void sellBtc(double qty) { m_stock->sellBtc(m_priceLow, qty); }
 
     void decrBtcBal(double qty) { m_stock->decrBtcQty(qty); }
 
@@ -29,11 +29,18 @@ public:
 
     void incrUsdtBal(double qty) { m_stock->incrUsdtQty(qty); }
 
-    // TODO: change to event-driven
-    void updateKline(Kline const& kline);
+    void decrUsdtBal(double qty) { m_stock->decrUsdtQty(qty); }
 
+    // TODO: change to event-driven
+    //void updateKline(Kline const& kline);
+
+    void updatePrice(double price);
+
+// Used by Simulation class
 public:
     double getTradeFee() const { return m_stock->getTradeFee(); }
+
+    void sellBtc(double price, double qty) { m_stock->sellBtc(price, qty); }
 
 public:
     virtual double evaluateQty() const = 0;

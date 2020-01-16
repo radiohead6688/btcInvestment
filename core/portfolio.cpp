@@ -17,8 +17,13 @@ using std::endl;
     //}
 //}
 
-void Portfolio::updateKline(Kline const& kline) {
-    m_priceLow = kline.getLow();
+//void Portfolio::updateKline(Kline const& kline) {
+    //m_priceLow = kline.getLow();
+//}
+
+void Portfolio::updatePrice(double price) {
+    m_priceLow = price;
+    onUpdate();
 }
 
 double Portfolio::getUsdtValueInBtc(double usdtQty) const {
@@ -35,7 +40,7 @@ StockPledgePortfolio::StockPledgePortfolio(std::unique_ptr<Stock> stock,
 }
 
 double StockPledgePortfolio::evaluateQty() const {
-    return m_stock->evaluateQty(m_priceLow) + m_pledge->evaluateQty();
+    return m_stock->evaluateQty(m_priceLow) + m_pledge->evaluateQty(m_priceLow);
 }
 
 void StockPledgePortfolio::onUpdate() {

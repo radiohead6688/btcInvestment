@@ -48,6 +48,10 @@ void Stock::incrUsdtQty(double qty) {
     m_usdtQty += qty;
 }
 
+void Stock::decrUsdtQty(double qty) {
+    m_usdtQty -= qty;
+}
+
 void Stock::purchaseBtc(double price, double netQty) {
     // TODO:insanity check
     assert(netQty > 0);
@@ -70,7 +74,7 @@ void Stock::purchaseBtc(double price, double netQty) {
 }
 
 
-//void Stock::sellBtc(double price, double targetQty) {
+void Stock::sellBtc(double price, double targetQty) {
     //if (targetQty == 0) {
         //return;
     //}
@@ -88,8 +92,8 @@ void Stock::purchaseBtc(double price, double netQty) {
 
     //cout << "Sold " << quantity << " btc at price " << price
          //<< " for " << targetQty * price << " usdt.\n";
-//}
+}
 
 double Stock::evaluateQty(double price) {
-    return m_btcQty + getUsdtValueInBtc(price, m_usdtQty);
+    return m_btcQty + m_usdtQty / price;
 }

@@ -248,12 +248,12 @@ void Pledge::incrCollaQty(double qty) {
     m_collaQty += qty;
 }
 
-double Pledge::evaluateQty() const {
+double Pledge::evaluateQty(double price) const {
     if (m_liquidated) {
         return 0.0;
     }
 
-    return m_collaQty - m_portfolio->getUsdtValueInBtc(m_loanUsdtAmnt);
+    return m_collaQty - m_loanUsdtAmnt / price;
 }
 
 void Pledge::update(double price) {
@@ -265,7 +265,6 @@ void Pledge::update(double price) {
         refill();
     }
 
-    m_liqPrice = m_entryPrice * m_platform->getLiqPriceRatio(m_refilledTimes - m_refundedTimes);
     if (price <= m_liqPrice) {
         m_liquidated = true;
         return;
