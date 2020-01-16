@@ -4,31 +4,31 @@
 
 #include <iostream>
 
-StockOnlyStrategy::StockOnlyStrategy() {
-    double btcQty = ARGs.m_btcQty;
-    double usdtQty = ARGs.m_usdtQty;
-    std::unique_ptr<TradeBase> platform = TradeFactory::createTrade(ARGs.m_trade.platform);
+StockOnlyStrategy::StockOnlyStrategy(Argument const& args) {
+    double btcQty = args.m_btcQty;
+    double usdtQty = args.m_usdtQty;
+    std::unique_ptr<TradeBase> platform = TradeFactory::createTrade(args.m_trade.platform);
 
     m_stock = std::make_unique<Stock>(std::move(platform), btcQty, usdtQty);
 }
 
-StockPledgeStrategy::StockPledgeStrategy() {
-    double entryPrice = ARGs.m_entryPrice;
-    double btcQty = ARGs.m_btcQty;
-    double usdtQty = ARGs.m_usdtQty;
-    double elecUsdtQty = ARGs.m_elecUsdtQty;
+StockPledgeStrategy::StockPledgeStrategy(Argument const& args) {
+    double entryPrice = args.m_entryPrice;
+    double btcQty = args.m_btcQty;
+    double usdtQty = args.m_usdtQty;
+    double elecUsdtQty = args.m_elecUsdtQty;
 
-    std::unique_ptr<TradeBase> tPlatform = TradeFactory::createTrade(ARGs.m_trade.platform);
+    std::unique_ptr<TradeBase> tPlatform = TradeFactory::createTrade(args.m_trade.platform);
 
-    std::unique_ptr<PledgeBase> pPlatform = PledgeFactory::createPledge(ARGs.m_pledge.platform);
-    double pledgeTerm = ARGs.m_pledge.durationInDays;
-    unsigned short netRefillTimesLimit = ARGs.m_pledge.netRefillTimesLimit;
+    std::unique_ptr<PledgeBase> pPlatform = PledgeFactory::createPledge(args.m_pledge.platform);
+    double pledgeTerm = args.m_pledge.durationInDays;
+    unsigned short netRefillTimesLimit = args.m_pledge.netRefillTimesLimit;
     double initCollaLevel = pPlatform->getInitCollaLevel();
 
     // TODO: add 2 refills support, for now supports ONLY 1 refill
     double refillCollaQty = pPlatform->getRefillCollaRatio(netRefillTimesLimit - 1);
     double reservedRefillCollaRatio;
-    switch (ARGs.m_pledge.refillCollaType) {
+    switch (args.m_pledge.refillCollaType) {
         case RefillCollaType::FullyReserved:
             reservedRefillCollaRatio = refillCollaQty;
             break;
@@ -102,13 +102,13 @@ StockPledgeStrategy::StockPledgeStrategy() {
          //<< "maximumLoanQty: " << maximumLoanUsdtQty << std::endl;
 }
 
-Strategy* StrategyFactory::createStrategy() {
-    switch (ARGs.m_strategyType) {
+Strategy* StrategyFactory::createStrategy(Argument const& args) {
+    switch (args.m_strategyType) {
         case Strategy::Type::StockOnly: {
-            return new StockOnlyStrategy();
+            return new StockOnlyStrategy(args);
         }
         case Strategy::Type::StockPledge: {
-            return new StockPledgeStrategy();
+            return new StockPledgeStrategy(args);
         }
         case Strategy::Type::Unknown:
         default:

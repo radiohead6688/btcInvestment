@@ -5,6 +5,8 @@
 
 #include <memory>
 
+class Argument;
+
 class Strategy {
 public:
     enum class Type : uint16_t {
@@ -22,7 +24,7 @@ public:
 
 class StockOnlyStrategy : public Strategy {
 public:
-    StockOnlyStrategy();
+    StockOnlyStrategy(Argument const& args);
 
     ~StockOnlyStrategy() = default;
 
@@ -36,7 +38,7 @@ protected:
 
 class StockPledgeStrategy : public Strategy {
 public:
-    StockPledgeStrategy();
+    StockPledgeStrategy(Argument const& args);
 
     ~StockPledgeStrategy() = default;
 
@@ -54,5 +56,5 @@ protected:
 
 class StrategyFactory {
 public:
-    static Strategy* createStrategy();
+    static Strategy* createStrategy(Argument const& args);
 };

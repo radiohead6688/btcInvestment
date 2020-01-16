@@ -3,21 +3,38 @@
 #include "argument.h"
 #include "strategy.h"
 #include "simulation.h"
-#include "strategyBuilder.h"
 #include "trade.h"
 #include "pledge.h"
-#include "contract.h"
-#include "log.h"
 #include "csv.h"
-
-using std::cout;
-using std::endl;
 
 int main()
 {
-    Strategy* sPtr = StrategyFactory::createStrategy();
-    Simulation si(sPtr);
-    si.run();
+    Argument stockOnlyArg;
+    stockOnlyArg.m_trade.platform = TradeFactory::Platform::Offline;
+    stockOnlyArg.m_entryPrice = 8100;
+    stockOnlyArg.m_elecUsdtQty = 582766;
+    stockOnlyArg.m_btcQty = 106;
+    stockOnlyArg.m_usdtQty = 0.0;
+
+    Strategy* stockOnlyStrategy = StrategyFactory::createStrategy(stockOnlyArg);
+    Simulation stockOnlySimulation(stockOnlyStrategy);
+    stockOnlySimulation.run();
+
+    std::cout << std::endl;
+
+    Argument stockPledgeArg;
+    stockPledgeArg.m_pledge.platform = PledgeFactory::Platform::Babel;
+    stockPledgeArg.m_pledge.durationInDays = 90;
+    stockPledgeArg.m_pledge.netRefillTimesLimit = 1;
+    stockPledgeArg.m_pledge.refillCollaType = RefillCollaType::SellAndBuyBackAtRefillPrice;
+    stockPledgeArg.m_entryPrice = 8100;
+    stockPledgeArg.m_elecUsdtQty = 582766;
+    stockPledgeArg.m_btcQty = 106;
+    stockPledgeArg.m_usdtQty = 0.0;
+
+    Strategy* stockPledgeStrategy = StrategyFactory::createStrategy(stockPledgeArg);
+    Simulation stockPledgeSimulation(stockPledgeStrategy);
+    stockPledgeSimulation.run();
 
     //std::unique_ptr<Stock> ptr = sPtr->getStock();
     //std::cout << ptr->getBtyQty();
