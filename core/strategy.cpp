@@ -26,15 +26,15 @@ StockPledgeStrategy::StockPledgeStrategy(Argument const& args) {
     double initCollaLevel = pPlatform->getInitCollaLevel();
 
     // TODO: add 2 refills support, for now supports ONLY 1 refill
-    double refillCollaQty = pPlatform->getRefillCollaRatio(netRefillTimesLimit - 1);
+    double refillCollaRatio = pPlatform->getRefillCollaRatio(netRefillTimesLimit - 1);
     double reservedRefillCollaRatio;
     switch (args.m_pledge.refillCollaType) {
         case RefillCollaType::FullyReserved:
-            reservedRefillCollaRatio = refillCollaQty;
+            reservedRefillCollaRatio = refillCollaRatio;
             break;
         case RefillCollaType::SellAndBuyBackAtRefillPrice:
             int tradeTimes = 2;
-            reservedRefillCollaRatio = refillCollaQty *
+            reservedRefillCollaRatio = refillCollaRatio *
                     pPlatform->getRefillPriceRatio(netRefillTimesLimit - 1);
             for (int i = 0; i < tradeTimes; ++i) {
                 reservedRefillCollaRatio *= tPlatform->getTradedToTargetRatio();
@@ -50,7 +50,7 @@ StockPledgeStrategy::StockPledgeStrategy(Argument const& args) {
 
     double collaQty, refillQty, interestsQty, sellQty, remainQty;
     if (maximumLoanUsdtQty >= elecUsdtQty) {
-        collaQty = elecUsdtQty / initCollaLevel;
+        collaQty = elecUsdtQty / initCollaLevel / entryPrice;
         refillQty = collaQty * reservedRefillCollaRatio;
         interestsQty = collaQty * initCollaLevel * interestsCollaRatio;
         sellQty = 0.0;
@@ -72,34 +72,34 @@ StockPledgeStrategy::StockPledgeStrategy(Argument const& args) {
     double refundPrice = entryPrice * pPlatform->getRefundPriceRatio(netRefillTimesLimit);
 
     double stockBtcQty = remainQty + sellQty + refillQty + interestsQty;
-    //m_stock = std::make_unique<Stock>(std::move(tPlatform), stockBtcQty, usdtQty);
+    m_stock = std::make_unique<Stock>(std::move(tPlatform), stockBtcQty, usdtQty);
 
-    //m_pledge = std::make_unique<Pledge>(std::move(pPlatform), entryPrice, collaQty,
-            //netRefillTimesLimit, pledgeTerm);
+    m_pledge = std::make_unique<Pledge>(std::move(pPlatform), entryPrice, collaQty,
+            netRefillTimesLimit, pledgeTerm);
 
-    m_stock = std::make_unique<Stock>(std::move(tPlatform), 56, 243000);
+    //m_stock = std::make_unique<Stock>(std::move(tPlatform), 56, 243000);
 
-    m_pledge = std::make_unique<Pledge>(std::move(pPlatform), 8100, 50, 1, 90);
+    //m_pledge = std::make_unique<Pledge>(std::move(pPlatform), 8100, 50, 1, 90);
 
     std::cout.precision(4);
-    //std::cout << std::fixed
-         //<< "entryPrice: " << entryPrice << std::endl
-         //<< "refillPrice: " << m_pledge->getRefillPrice() << std::endl
-         //<< "originalLiqPrice: " << m_pledge->getLiqPrice() << std::endl
-         //<< "LiqPrice after refill: " << refilledLiqPrice << std::endl
-         //<< "liqPrce: " << liqPrice << std::endl
-         //<< "refundPrice: " << m_pledge->getRefundPrice() << std::endl
-         //<< std::endl
-         //<< "quantity: " << btcQty << std::endl
-         //<< "elecUsdtQty: " << elecUsdtQty << std::endl
-         //<< "initCollaLevel: " <<  initCollaLevel << std::endl
-         //<< "reservedRefillCollaRatio: " << reservedRefillCollaRatio << std::endl
-         //<< "collaQty: " << collaQty << std::endl
-         //<< "refillQty: " << refillQty << std::endl
-         //<< "interestsQty: " << interestsQty << std::endl
-         //<< "sellQty: " << sellQty << std::endl
-         //<< "usdtLoanAmnt: " << collaQty * initCollaLevel * entryPrice << std::endl
-         //<< "maximumLoanQty: " << maximumLoanUsdtQty << std::endl;
+    std::cout << std::fixed
+         << "entryPrice: " << entryPrice << std::endl
+         << "refillPrice: " << m_pledge->getRefillPrice() << std::endl
+         << "originalLiqPrice: " << m_pledge->getLiqPrice() << std::endl
+         << "LiqPrice after refill: " << refilledLiqPrice << std::endl
+         << "liqPrce: " << liqPrice << std::endl
+         << "refundPrice: " << m_pledge->getRefundPrice() << std::endl
+         << std::endl
+         << "quantity: " << btcQty << std::endl
+         << "elecUsdtQty: " << elecUsdtQty << std::endl
+         << "initCollaLevel: " <<  initCollaLevel << std::endl
+         << "reservedRefillCollaRatio: " << reservedRefillCollaRatio << std::endl
+         << "collaQty: " << collaQty << std::endl
+         << "refillQty: " << refillQty << std::endl
+         << "interestsQty: " << interestsQty << std::endl
+         << "sellQty: " << sellQty << std::endl
+         << "usdtLoanAmnt: " << collaQty * initCollaLevel * entryPrice << std::endl
+         << "maximumLoanQty: " << maximumLoanUsdtQty << std::endl;
 }
 
 Strategy* StrategyFactory::createStrategy(Argument const& args) {

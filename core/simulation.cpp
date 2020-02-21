@@ -55,7 +55,7 @@ void Simulation::init() {
 }
 
 void Simulation::run() {
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 6; ++i) {
         //if (i < 31) {
             //auto itr = m_elecFee.find((i + m_startDate) % 31);
             //if (itr != m_elecFee.end()) {
@@ -71,7 +71,7 @@ void Simulation::run() {
 
             if (i + m_startDate == 16) {
                 //payElecFeeWithUsdt(m_elecFee[16]);
-                payElecFeeWithBtc(m_elecFee[16], 8700);
+                payElecFeeWithBtc(m_elecFee[16], 8702);
             }
 
             if (i + m_startDate == 22) {
@@ -85,11 +85,11 @@ void Simulation::run() {
             if (i + m_startDate == 32) {        // 7th next month
                 payElecFeeWithUsdt(m_elecFee[7]);
             }
+        }
 
-            if (i == 1) {
-                m_portfolio->decrBtcBal(12.67);
-                m_portfolio->incrUsdtBal(106442.41);
-            }
+        if (i + m_startDate == 14) {
+            m_portfolio->decrBtcBal(12.67);
+            m_portfolio->incrUsdtBal(106442.41);
         }
 
         if (i != 0 && i % 31 == 0) {

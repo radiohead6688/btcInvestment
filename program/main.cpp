@@ -9,32 +9,33 @@
 
 int main()
 {
-    Argument stockOnlyArg;
-    stockOnlyArg.m_trade.platform = TradeFactory::Platform::Offline;
-    stockOnlyArg.m_entryPrice = 8100;
-    stockOnlyArg.m_elecUsdtQty = 582766;
-    stockOnlyArg.m_btcQty = 106;
-    stockOnlyArg.m_usdtQty = 0.0;
+    //Argument stockOnlyArg;
+    //stockOnlyArg.m_trade.platform = TradeFactory::Platform::Offline;
+    //stockOnlyArg.m_entryPrice = 8100;
+    //stockOnlyArg.m_elecUsdtQty = 582766;
+    //stockOnlyArg.m_btcQty = 106;
+    //stockOnlyArg.m_usdtQty = 0.0;
 
-    Strategy* stockOnlyStrategy = StrategyFactory::createStrategy(stockOnlyArg);
-    Simulation stockOnlySimulation(stockOnlyStrategy);
-    stockOnlySimulation.run();
+    //Strategy* stockOnlyStrategy = StrategyFactory::createStrategy(stockOnlyArg);
+    //Simulation stockOnlySimulation(stockOnlyStrategy);
+    //stockOnlySimulation.run();
 
-    std::cout << std::endl;
+    //std::cout << std::endl;
 
     Argument stockPledgeArg;
     stockPledgeArg.m_pledge.platform = PledgeFactory::Platform::Babel;
     stockPledgeArg.m_pledge.durationInDays = 90;
     stockPledgeArg.m_pledge.netRefillTimesLimit = 1;
     stockPledgeArg.m_pledge.refillCollaType = RefillCollaType::SellAndBuyBackAtRefillPrice;
-    stockPledgeArg.m_entryPrice = 8100;
-    stockPledgeArg.m_elecUsdtQty = 582766;
-    stockPledgeArg.m_btcQty = 106;
+    //stockPledgeArg.m_pledge.refillCollaType = RefillCollaType::FullyReserved;
+    stockPledgeArg.m_entryPrice = 9600;
+    stockPledgeArg.m_elecUsdtQty = 306873;
+    stockPledgeArg.m_btcQty = 91;
     stockPledgeArg.m_usdtQty = 0.0;
 
     Strategy* stockPledgeStrategy = StrategyFactory::createStrategy(stockPledgeArg);
     Simulation stockPledgeSimulation(stockPledgeStrategy);
-    stockPledgeSimulation.run();
+    //stockPledgeSimulation.run();
 
     //std::unique_ptr<Stock> ptr = sPtr->getStock();
     //std::cout << ptr->getBtyQty();

@@ -49,7 +49,7 @@ PledgeBase::PledgeBase(double icl, double mrfil, double ll, double air) :
             //* (1 + duration * m_dailyInterests);
 //}
 
-BabelPledge::BabelPledge() : PledgeBase(0.6, 0.8, 0.9, 0.0888) {
+BabelPledge::BabelPledge() : PledgeBase(0.6, 0.8, 0.9, 0.0925) {
     //cout.precision(8);
     //cout << std::fixed
          //<< "Babel PledgeBase:" << endl

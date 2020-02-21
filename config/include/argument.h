@@ -33,10 +33,10 @@ public:
 public:
     Strategy::Type m_strategyType  = Strategy::Type::StockPledge;
     //Strategy::Type m_strategyType  = Strategy::Type::StockOnly;
-    double m_entryPrice                     = 8100;
-    double m_elecUsdtQty                    = 582766;
-    double m_btcQty                         = 106.0;
-    double m_usdtQty                        = 0.0;
+    double m_entryPrice;
+    double m_elecUsdtQty;
+    double m_btcQty;
+    double m_usdtQty;
 };
 
 extern Argument ARGs;
